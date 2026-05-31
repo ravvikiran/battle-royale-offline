@@ -1,0 +1,139 @@
+[gd_scene load_steps=2 format=3 uid="uid://match_settings"]
+
+[ext_resource type="Script" path="res://scripts/match_settings.gd" id="1_script"]
+
+[node name="MatchSettings" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.12, 0.18, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "MATCH SETTINGS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DifficultySection" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DifficultyLabel" type="Label" parent="MarginContainer/VBoxContainer/DifficultySection"]
+layout_mode = 2
+text = "Bot Difficulty"
+
+[node name="DifficultyOption" type="OptionButton" parent="MarginContainer/VBoxContainer/DifficultySection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 44)
+
+[node name="BotCountSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BotCountHeader" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BotCountSection"]
+layout_mode = 2
+
+[node name="BotCountTitle" type="Label" parent="MarginContainer/VBoxContainer/BotCountSection/BotCountHeader"]
+layout_mode = 2
+text = "Bot Count"
+size_flags_horizontal = 3
+
+[node name="BotCountLabel" type="Label" parent="MarginContainer/VBoxContainer/BotCountSection/BotCountHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "50"
+horizontal_alignment = 2
+
+[node name="BotCountSlider" type="HSlider" parent="MarginContainer/VBoxContainer/BotCountSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 32)
+min_value = 10.0
+max_value = 99.0
+step = 1.0
+value = 50.0
+
+[node name="BotCountInput" type="SpinBox" parent="MarginContainer/VBoxContainer/BotCountSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 44)
+min_value = 10.0
+max_value = 99.0
+step = 1.0
+value = 50.0
+
+[node name="ZoneSpeedSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ZoneSpeedLabel" type="Label" parent="MarginContainer/VBoxContainer/ZoneSpeedSection"]
+layout_mode = 2
+text = "Zone Shrink Speed"
+
+[node name="ZoneSpeedOption" type="OptionButton" parent="MarginContainer/VBoxContainer/ZoneSpeedSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 44)
+
+[node name="DurationSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DurationLabel" type="Label" parent="MarginContainer/VBoxContainer/DurationSection"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Estimated Duration: 15 min"
+horizontal_alignment = 1
+
+[node name="ValidationLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+
+[node name="ButtonContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 20
+
+[node name="BackButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 50)
+text = "Back"
+
+[node name="ConfirmButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(160, 50)
+text = "Start Match"

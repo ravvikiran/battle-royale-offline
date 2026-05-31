@@ -1,0 +1,28 @@
+{
+  "consumables": [
+    {
+      "type": "BANDAGE",
+      "heal_amount": 25,
+      "heal_target": "HEALTH",
+      "use_time_seconds": 3,
+      "max_stack": 5,
+      "cap": 75
+    },
+    {
+      "type": "MEDKIT",
+      "heal_amount": 100,
+      "heal_target": "HEALTH",
+      "use_time_seconds": 8,
+      "max_stack": 3,
+      "cap": 100
+    },
+    {
+      "type": "SHIELD_POTION",
+      "heal_amount": 50,
+      "heal_target": "SHIELD",
+      "use_time_seconds": 4,
+      "max_stack": 3,
+      "cap": 100
+    }
+  ]
+}

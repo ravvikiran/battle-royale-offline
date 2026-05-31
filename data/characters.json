@@ -1,0 +1,34 @@
+{
+  "characters": [
+    {
+      "id": "BLITZ",
+      "name": "Blitz",
+      "description": "Nimble scout with sporty build, wearing a tactical vest and cap",
+      "primary_color": "#FF6B35",
+      "variants": ["MALE", "FEMALE"],
+      "silhouette": "slim_capped",
+      "male_details": "Short hair under cap",
+      "female_details": "Ponytail under cap"
+    },
+    {
+      "id": "TITAN",
+      "name": "Titan",
+      "description": "Bulky heavy with broad shoulders, wearing armored plating and helmet visor",
+      "primary_color": "#2E86AB",
+      "variants": ["MALE", "FEMALE"],
+      "silhouette": "broad_helmeted",
+      "male_details": "Square jaw visible under visor",
+      "female_details": "Braided hair under helmet"
+    },
+    {
+      "id": "PHANTOM",
+      "name": "Phantom",
+      "description": "Sleek stealth with slim build, wearing a hooded cloak and face mask",
+      "primary_color": "#7B2D8B",
+      "variants": ["MALE", "FEMALE"],
+      "silhouette": "slim_hooded",
+      "male_details": "Hood up with goggles",
+      "female_details": "Hood down with short asymmetric hair"
+    }
+  ]
+}

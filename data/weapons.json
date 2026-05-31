@@ -1,0 +1,54 @@
+{
+  "weapons": [
+    {
+      "category": "AR",
+      "name": "Volt Repeater",
+      "base_damage": 30,
+      "fire_rate_rps": 5,
+      "magazine_size": 30,
+      "reload_time_seconds": 2.0,
+      "effective_range_meters": 50,
+      "base_accuracy": 0.75
+    },
+    {
+      "category": "SHOTGUN",
+      "name": "Boomstick",
+      "base_damage": 90,
+      "fire_rate_rps": 1,
+      "magazine_size": 5,
+      "reload_time_seconds": 4.0,
+      "effective_range_meters": 10,
+      "base_accuracy": 0.60
+    },
+    {
+      "category": "SMG",
+      "name": "Buzzer",
+      "base_damage": 18,
+      "fire_rate_rps": 8,
+      "magazine_size": 25,
+      "reload_time_seconds": 1.5,
+      "effective_range_meters": 30,
+      "base_accuracy": 0.65
+    },
+    {
+      "category": "SNIPER",
+      "name": "Longshot",
+      "base_damage": 100,
+      "fire_rate_rps": 0.5,
+      "magazine_size": 5,
+      "reload_time_seconds": 3.0,
+      "effective_range_meters": 150,
+      "base_accuracy": 0.90
+    },
+    {
+      "category": "PISTOL",
+      "name": "Sideswipe",
+      "base_damage": 24,
+      "fire_rate_rps": 3,
+      "magazine_size": 12,
+      "reload_time_seconds": 1.0,
+      "effective_range_meters": 35,
+      "base_accuracy": 0.70
+    }
+  ]
+}

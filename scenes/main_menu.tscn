@@ -1,0 +1,131 @@
+[gd_scene load_steps=2 format=3 uid="uid://main_menu"]
+
+[ext_resource type="Script" path="res://scripts/main_menu.gd" id="1_script"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.08, 0.12, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 40
+
+[node name="LeftPanel" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.6
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "BATTLE ROYALE"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="MarginContainer/HBoxContainer/LeftPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 20)
+
+[node name="ButtonContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/LeftPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="PlayButton" type="Button" parent="MarginContainer/HBoxContainer/LeftPanel/ButtonContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 60)
+text = "PLAY"
+
+[node name="CharactersButton" type="Button" parent="MarginContainer/HBoxContainer/LeftPanel/ButtonContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 50)
+text = "Characters"
+
+[node name="CareerStatsButton" type="Button" parent="MarginContainer/HBoxContainer/LeftPanel/ButtonContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 50)
+text = "Career Stats"
+
+[node name="SettingsButton" type="Button" parent="MarginContainer/HBoxContainer/LeftPanel/ButtonContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 50)
+text = "Settings"
+
+[node name="LoginButton" type="Button" parent="MarginContainer/HBoxContainer/LeftPanel/ButtonContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 50)
+text = "Login"
+
+[node name="VersionLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "v0.1.0"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="RightPanel" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.4
+
+[node name="PreviewViewportContainer" type="SubViewportContainer" parent="MarginContainer/HBoxContainer/RightPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+custom_minimum_size = Vector2(250, 400)
+stretch = true
+
+[node name="PreviewSubViewport" type="SubViewport" parent="MarginContainer/HBoxContainer/RightPanel/PreviewViewportContainer"]
+unique_name_in_owner = true
+handle_input_locally = false
+size = Vector2i(250, 400)
+render_target_update_mode = 4
+transparent_bg = true
+
+[node name="PreviewCamera" type="Camera3D" parent="MarginContainer/HBoxContainer/RightPanel/PreviewViewportContainer/PreviewSubViewport"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 2.5)
+fov = 40.0
+
+[node name="PreviewLight" type="DirectionalLight3D" parent="MarginContainer/HBoxContainer/RightPanel/PreviewViewportContainer/PreviewSubViewport"]
+transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 2, 3, 1)
+light_energy = 1.2
+
+[node name="FillLight" type="DirectionalLight3D" parent="MarginContainer/HBoxContainer/RightPanel/PreviewViewportContainer/PreviewSubViewport"]
+transform = Transform3D(0.866, 0.25, -0.433, 0, 0.866, 0.5, 0.5, -0.433, 0.75, -2, 2, 1)
+light_energy = 0.4
+
+[node name="PreviewModelRoot" type="Node3D" parent="MarginContainer/HBoxContainer/RightPanel/PreviewViewportContainer/PreviewSubViewport"]
+unique_name_in_owner = true

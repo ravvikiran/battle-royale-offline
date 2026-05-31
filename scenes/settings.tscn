@@ -1,0 +1,240 @@
+[gd_scene load_steps=2 format=3 uid="uid://settings_menu"]
+
+[ext_resource type="Script" path="res://scripts/settings_menu.gd" id="1_script"]
+
+[node name="SettingsMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.15, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="HeaderContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="MarginContainer/VBoxContainer/HeaderContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(80, 44)
+text = "< Back"
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer/HeaderContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "SETTINGS"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer/HeaderContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+
+[node name="MainSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ControlsButton" type="Button" parent="MarginContainer/VBoxContainer/MainSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(250, 50)
+text = "Controls"
+
+[node name="GraphicsButton" type="Button" parent="MarginContainer/VBoxContainer/MainSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(250, 50)
+text = "Graphics"
+
+[node name="AudioButton" type="Button" parent="MarginContainer/VBoxContainer/MainSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(250, 50)
+text = "Audio"
+
+[node name="AccountButton" type="Button" parent="MarginContainer/VBoxContainer/MainSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(250, 50)
+text = "Account"
+
+[node name="ControlsSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+theme_override_constants/separation = 16
+
+[node name="SensitivitySection" type="VBoxContainer" parent="MarginContainer/VBoxContainer/ControlsSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SensitivityLabel" type="Label" parent="MarginContainer/VBoxContainer/ControlsSection/SensitivitySection"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Sensitivity: 5.0"
+
+[node name="SensitivitySlider" type="HSlider" parent="MarginContainer/VBoxContainer/ControlsSection/SensitivitySection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 32)
+min_value = 1.0
+max_value = 10.0
+step = 0.5
+value = 5.0
+
+[node name="FireModeSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer/ControlsSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="FireModeLabel" type="Label" parent="MarginContainer/VBoxContainer/ControlsSection/FireModeSection"]
+layout_mode = 2
+text = "Fire Mode"
+
+[node name="FireModeOption" type="OptionButton" parent="MarginContainer/VBoxContainer/ControlsSection/FireModeSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 44)
+
+[node name="ControlsBackButton" type="Button" parent="MarginContainer/VBoxContainer/ControlsSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 50)
+text = "< Back"
+
+[node name="GraphicsSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+theme_override_constants/separation = 16
+
+[node name="QualitySection" type="VBoxContainer" parent="MarginContainer/VBoxContainer/GraphicsSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="QualityLabel" type="Label" parent="MarginContainer/VBoxContainer/GraphicsSection/QualitySection"]
+layout_mode = 2
+text = "Graphics Quality"
+
+[node name="QualityOption" type="OptionButton" parent="MarginContainer/VBoxContainer/GraphicsSection/QualitySection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 44)
+
+[node name="GraphicsBackButton" type="Button" parent="MarginContainer/VBoxContainer/GraphicsSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 50)
+text = "< Back"
+
+[node name="AudioSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+theme_override_constants/separation = 16
+
+[node name="MusicSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer/AudioSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MusicLabel" type="Label" parent="MarginContainer/VBoxContainer/AudioSection/MusicSection"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Music: 70"
+
+[node name="MusicSlider" type="HSlider" parent="MarginContainer/VBoxContainer/AudioSection/MusicSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 32)
+max_value = 100.0
+step = 1.0
+value = 70.0
+
+[node name="SfxSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer/AudioSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SfxLabel" type="Label" parent="MarginContainer/VBoxContainer/AudioSection/SfxSection"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "SFX: 80"
+
+[node name="SfxSlider" type="HSlider" parent="MarginContainer/VBoxContainer/AudioSection/SfxSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 32)
+max_value = 100.0
+step = 1.0
+value = 80.0
+
+[node name="VoiceSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer/AudioSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="VoiceLabel" type="Label" parent="MarginContainer/VBoxContainer/AudioSection/VoiceSection"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Voice: 80"
+
+[node name="VoiceSlider" type="HSlider" parent="MarginContainer/VBoxContainer/AudioSection/VoiceSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 32)
+max_value = 100.0
+step = 1.0
+value = 80.0
+
+[node name="AudioBackButton" type="Button" parent="MarginContainer/VBoxContainer/AudioSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 50)
+text = "< Back"
+
+[node name="AccountSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+theme_override_constants/separation = 16
+
+[node name="AccountStatusLabel" type="Label" parent="MarginContainer/VBoxContainer/AccountSection"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Status: Guest"
+
+[node name="AccountIdLabel" type="Label" parent="MarginContainer/VBoxContainer/AccountSection"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ID: Not available"
+autowrap_mode = 2
+
+[node name="AccountBackButton" type="Button" parent="MarginContainer/VBoxContainer/AccountSection"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 50)
+text = "< Back"

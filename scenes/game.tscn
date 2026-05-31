@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://game_orchestrator"]
+
+[ext_resource type="Script" path="res://scripts/game_orchestrator.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://game_map" path="res://scenes/game_map.tscn" id="2_game_map"]
+
+[node name="Game" type="Node"]
+script = ExtResource("1_script")
+
+[node name="GameMap" parent="." instance=ExtResource("2_game_map")]
+
+[node name="MatchController" type="Node" parent="."]
+
+[node name="ZoneManager" type="Node" parent="."]
+
+[node name="BotAIManager" type="Node" parent="."]
+
+[node name="InputController" type="Node" parent="."]
+
+[node name="HUDManager" type="Node" parent="."]
+
+[node name="RenderManager" type="Node" parent="."]

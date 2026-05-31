@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://game_map"]
+
+[ext_resource type="Script" path="res://scripts/game_map.gd" id="1_script"]
+
+[node name="GameMap" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="TerrainContainer" type="Node3D" parent="."]
+
+[node name="LocationsContainer" type="Node3D" parent="."]
+
+[node name="LabelsContainer" type="Node3D" parent="."]
+visible = false
+
+[node name="LootContainer" type="Node3D" parent="."]

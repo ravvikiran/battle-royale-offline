@@ -1,0 +1,44 @@
+{
+  "phases": [
+    {
+      "phase": 1,
+      "safe_radius_percent": 70,
+      "wait_seconds": 120,
+      "shrink_seconds": 60,
+      "storm_dps": 1
+    },
+    {
+      "phase": 2,
+      "safe_radius_percent": 50,
+      "wait_seconds": 90,
+      "shrink_seconds": 50,
+      "storm_dps": 2
+    },
+    {
+      "phase": 3,
+      "safe_radius_percent": 30,
+      "wait_seconds": 60,
+      "shrink_seconds": 40,
+      "storm_dps": 3
+    },
+    {
+      "phase": 4,
+      "safe_radius_percent": 15,
+      "wait_seconds": 45,
+      "shrink_seconds": 30,
+      "storm_dps": 5
+    },
+    {
+      "phase": 5,
+      "safe_radius_percent": 5,
+      "wait_seconds": 30,
+      "shrink_seconds": 20,
+      "storm_dps": 8
+    }
+  ],
+  "speed_multipliers": {
+    "SLOW": 1.5,
+    "NORMAL": 1.0,
+    "FAST": 0.6
+  }
+}
