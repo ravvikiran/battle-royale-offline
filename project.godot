@@ -16,6 +16,10 @@ config/version="0.1.0"
 run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.2", "Mobile")
 
+[autoload]
+
+SceneManager="*res://scripts/scene_manager.gd"
+
 [display]
 
 window/size/viewport_width=1080

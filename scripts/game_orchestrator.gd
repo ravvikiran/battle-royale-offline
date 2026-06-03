@@ -77,6 +77,11 @@ var _player_moving: bool = false
 
 
 func _ready() -> void:
+	# Get GameMap reference from scene tree (it's defined in game.tscn)
+	var map_node := get_node_or_null("GameMap")
+	if map_node is GameMap:
+		game_map = map_node
+
 	_initialize_systems()
 	_wire_signals()
 	_initialized = true
