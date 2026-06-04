@@ -1,7 +1,6 @@
 ## Manages scene transitions and navigation between game screens.
 ## Registered as an autoload to persist across scene changes.
 ## Handles: MainMenu → CharacterSelector → MatchSettings → Game → Victory/Defeat → MainMenu
-class_name SceneManager
 extends Node
 
 
@@ -79,10 +78,8 @@ func goto_scene(scene_path: String) -> void:
 
 func _deferred_goto_scene(scene_path: String) -> void:
 	get_tree().change_scene_to_file(scene_path)
-	# Wait one frame for the new scene to be ready, then connect signals
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_connect_current_scene()
+	# Use a one-shot timer to connect signals after the scene is loaded
+	get_tree().create_timer(0.0).timeout.connect(_connect_current_scene)
 
 
 # --- Main Menu ---

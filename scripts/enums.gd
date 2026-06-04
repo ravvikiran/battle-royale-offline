@@ -1,6 +1,7 @@
 ## Core enumerations for the Battle Royale Offline game.
-## This autoload provides all shared enums used across game systems.
+## Provides all shared enums used across game systems via class_name.
 class_name Enums
+extends RefCounted
 
 
 ## Match lifecycle states

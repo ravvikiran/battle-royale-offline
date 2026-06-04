@@ -14,7 +14,7 @@ config/name="Battle Royale Offline"
 config/description="An offline Battle Royale mobile game for Android with Fortnite Lego-inspired art style"
 config/version="0.1.0"
 run/main_scene="res://scenes/main_menu.tscn"
-config/features=PackedStringArray("4.2", "Mobile")
+config/features=PackedStringArray("4.6", "Mobile")
 
 [autoload]
 
