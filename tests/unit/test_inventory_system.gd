@@ -110,7 +110,7 @@ func test_add_weapon_at_capacity_returns_error() -> void:
 	_inventory.add_weapon(_sniper_weapon)
 	_inventory.add_weapon(_pistol_weapon)
 	var result := _inventory.add_weapon(_extra_weapon)
-	assert_eq(result, ERR_CANT_ACQUIRE, "Adding 6th weapon should fail")
+	assert_eq(result, FAILED, "Adding 6th weapon should fail")
 	assert_eq(_inventory.get_weapon_count(), 5, "Weapon count should remain 5")
 
 
@@ -192,19 +192,19 @@ func test_add_consumable_bandage() -> void:
 func test_add_consumable_bandage_at_max_stack() -> void:
 	_inventory.add_consumable(Enums.ConsumableType.BANDAGE, 5)
 	var result := _inventory.add_consumable(Enums.ConsumableType.BANDAGE, 1)
-	assert_eq(result, ERR_CANT_ACQUIRE, "Adding beyond max stack should fail")
+	assert_eq(result, FAILED, "Adding beyond max stack should fail")
 	assert_eq(_inventory.get_consumable_count(Enums.ConsumableType.BANDAGE), 5)
 
 
 func test_add_consumable_medkit_max_3() -> void:
 	assert_eq(_inventory.add_consumable(Enums.ConsumableType.MEDKIT, 3), OK)
-	assert_eq(_inventory.add_consumable(Enums.ConsumableType.MEDKIT, 1), ERR_CANT_ACQUIRE)
+	assert_eq(_inventory.add_consumable(Enums.ConsumableType.MEDKIT, 1), FAILED)
 	assert_eq(_inventory.get_consumable_count(Enums.ConsumableType.MEDKIT), 3)
 
 
 func test_add_consumable_shield_potion_max_3() -> void:
 	assert_eq(_inventory.add_consumable(Enums.ConsumableType.SHIELD_POTION, 3), OK)
-	assert_eq(_inventory.add_consumable(Enums.ConsumableType.SHIELD_POTION, 1), ERR_CANT_ACQUIRE)
+	assert_eq(_inventory.add_consumable(Enums.ConsumableType.SHIELD_POTION, 1), FAILED)
 	assert_eq(_inventory.get_consumable_count(Enums.ConsumableType.SHIELD_POTION), 3)
 
 

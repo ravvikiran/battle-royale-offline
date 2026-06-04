@@ -76,13 +76,13 @@ func _init() -> void:
 
 
 ## Adds a weapon to the first available slot.
-## Returns OK on success, ERR_CANT_ACQUIRE if inventory is full.
+## Returns OK on success, FAILED if inventory is full.
 func add_weapon(weapon: WeaponData) -> int:
 	for i in range(MAX_WEAPON_SLOTS):
 		if weapon_slots[i] == null:
 			weapon_slots[i] = weapon
 			return OK
-	return ERR_CANT_ACQUIRE
+	return FAILED
 
 
 ## Swaps the weapon at the given slot with a new weapon.
@@ -122,14 +122,14 @@ func get_weapon_count() -> int:
 
 
 ## Adds consumable items of the given type.
-## Returns OK on success, ERR_CANT_ACQUIRE if adding would exceed stack limit.
+## Returns OK on success, FAILED if adding would exceed stack limit.
 func add_consumable(type: Enums.ConsumableType, count: int) -> int:
 	if count <= 0:
 		return OK
 	var max_stack: int = STACK_LIMITS[type]
 	var current_count: int = consumable_slots.get(type, 0)
 	if current_count + count > max_stack:
-		return ERR_CANT_ACQUIRE
+		return FAILED
 	consumable_slots[type] = current_count + count
 	return OK
 

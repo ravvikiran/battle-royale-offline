@@ -186,8 +186,8 @@ func test_property_weapon_pickup_at_capacity_rejected_without_state_change() -> 
 		var result := inventory.add_weapon(extra_weapon)
 
 		# Verify rejection
-		assert_eq(result, ERR_CANT_ACQUIRE,
-			"Iteration %d: Adding weapon at capacity should return ERR_CANT_ACQUIRE" % i)
+		assert_eq(result, FAILED,
+			"Iteration %d: Adding weapon at capacity should return FAILED" % i)
 
 		# Verify state unchanged
 		assert_eq(inventory.get_weapon_count(), MAX_WEAPONS,
@@ -220,8 +220,8 @@ func test_property_consumable_pickup_at_capacity_rejected_without_state_change()
 		var result := inventory.add_consumable(type, add_count)
 
 		# Verify rejection
-		assert_eq(result, ERR_CANT_ACQUIRE,
-			"Iteration %d: Adding consumable type %d at max stack should return ERR_CANT_ACQUIRE" % [i, type])
+		assert_eq(result, FAILED,
+			"Iteration %d: Adding consumable type %d at max stack should return FAILED" % [i, type])
 
 		# Verify state unchanged for all consumable types
 		for check_type in CONSUMABLE_TYPES:
@@ -274,7 +274,7 @@ func test_property_bandage_stack_limit_is_5() -> void:
 						i, count, added_so_far + count])
 				added_so_far += count
 			else:
-				assert_eq(result, ERR_CANT_ACQUIRE,
+				assert_eq(result, FAILED,
 					"Iteration %d: Adding %d bandages (total would be %d) should fail" % [
 						i, count, added_so_far + count])
 
@@ -301,7 +301,7 @@ func test_property_medkit_stack_limit_is_3() -> void:
 						i, count, added_so_far + count])
 				added_so_far += count
 			else:
-				assert_eq(result, ERR_CANT_ACQUIRE,
+				assert_eq(result, FAILED,
 					"Iteration %d: Adding %d medkits (total would be %d) should fail" % [
 						i, count, added_so_far + count])
 
@@ -328,7 +328,7 @@ func test_property_shield_potion_stack_limit_is_3() -> void:
 						i, count, added_so_far + count])
 				added_so_far += count
 			else:
-				assert_eq(result, ERR_CANT_ACQUIRE,
+				assert_eq(result, FAILED,
 					"Iteration %d: Adding %d shield potions (total would be %d) should fail" % [
 						i, count, added_so_far + count])
 

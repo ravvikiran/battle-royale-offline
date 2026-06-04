@@ -78,8 +78,15 @@ func goto_scene(scene_path: String) -> void:
 
 func _deferred_goto_scene(scene_path: String) -> void:
 	get_tree().change_scene_to_file(scene_path)
-	# Use a one-shot timer to connect signals after the scene is loaded
-	get_tree().create_timer(0.0).timeout.connect(_connect_current_scene)
+	# Connect on next frame — scene will be loaded by then
+	if not get_tree().process_frame.is_connected(_on_scene_loaded):
+		get_tree().process_frame.connect(_on_scene_loaded, CONNECT_ONE_SHOT)
+
+
+func _on_scene_loaded() -> void:
+	# Extra frame delay to ensure _ready() has been called on the new scene
+	if not get_tree().process_frame.is_connected(_connect_current_scene):
+		get_tree().process_frame.connect(_connect_current_scene, CONNECT_ONE_SHOT)
 
 
 # --- Main Menu ---
@@ -162,6 +169,18 @@ func _connect_game_orchestrator(orchestrator: GameOrchestrator) -> void:
 
 	if not orchestrator.match_results_ready.is_connected(_on_match_results_ready):
 		orchestrator.match_results_ready.connect(_on_match_results_ready)
+
+	# Ensure match_settings has required keys with defaults
+	if not match_settings.has("bot_count"):
+		match_settings["bot_count"] = 50
+	if not match_settings.has("bot_difficulty"):
+		match_settings["bot_difficulty"] = Enums.Difficulty.MEDIUM
+	if not match_settings.has("zone_speed"):
+		match_settings["zone_speed"] = Enums.ZoneShrinkSpeed.NORMAL
+	if not match_settings.has("character"):
+		match_settings["character"] = selected_character
+	if not match_settings.has("variant"):
+		match_settings["variant"] = selected_variant
 
 	# Start the match with the configured settings
 	orchestrator.start_match_from_lobby(selected_character, selected_variant, match_settings)

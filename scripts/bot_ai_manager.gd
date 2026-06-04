@@ -67,6 +67,83 @@ func update_all(delta: float) -> void:
 			var safe_point: Vector2 = context.get("nearest_safe_point", Vector2.ZERO)
 			bot.calculate_movement_toward_zone(safe_point)
 
+		# Move bot based on current state
+		_move_bot(bot, delta)
+
+	# Resolve bot-vs-bot combat
+	_resolve_bot_combat(delta)
+
+
+## Moves a bot based on its current FSM state.
+func _move_bot(bot: BotInstance, delta: float) -> void:
+	if bot.movement_direction.length() > 0.01:
+		var speed := 8.0  # meters per second
+		bot.position += bot.movement_direction * speed * delta
+
+
+## Resolves combat between bots that are in ENGAGING state.
+## Each engaging bot has a chance to hit its target based on accuracy.
+func _resolve_bot_combat(delta: float) -> void:
+	for bot in bots:
+		if not bot.is_alive:
+			continue
+		if bot.state != Enums.BotState.ENGAGING:
+			continue
+		if not bot.has_weapon:
+			continue
+
+		# Find nearest alive enemy in range
+		var target: BotInstance = _get_nearest_alive_enemy(bot)
+		if target == null:
+			continue
+
+		# Fire rate: bots shoot approximately once per second
+		# Use reaction timer as fire cooldown
+		if not bot.is_reaction_ready(0.0):
+			continue
+
+		# Accuracy check
+		if randf() > bot.accuracy:
+			continue  # Miss
+
+		# Deal damage (base 15-25 depending on difficulty)
+		var base_damage := 15.0 + (int(bot.difficulty) * 5.0)
+		target.take_damage(base_damage)
+
+		# Check if target is eliminated
+		if not target.is_alive:
+			_last_elimination_killer = bot.id
+			_last_elimination_victim = target.id
+
+
+## Tracks the last elimination for signaling
+var _last_elimination_killer: int = -1
+var _last_elimination_victim: int = -1
+
+
+## Returns the last elimination pair and clears it.
+func pop_last_elimination() -> Dictionary:
+	if _last_elimination_victim >= 0:
+		var result := {"killer": _last_elimination_killer, "victim": _last_elimination_victim}
+		_last_elimination_killer = -1
+		_last_elimination_victim = -1
+		return result
+	return {}
+
+
+## Returns the nearest alive enemy bot within engagement range.
+func _get_nearest_alive_enemy(bot: BotInstance) -> BotInstance:
+	var nearest: BotInstance = null
+	var nearest_dist := INF
+	for other in bots:
+		if other.id == bot.id or not other.is_alive:
+			continue
+		var dist := bot.position.distance_to(other.position)
+		if dist <= bot.engagement_range and dist < nearest_dist:
+			nearest_dist = dist
+			nearest = other
+	return nearest
+
 
 ## Returns an array of all currently alive bots.
 func get_alive_bots() -> Array[BotInstance]:

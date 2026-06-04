@@ -19,12 +19,14 @@ config/features=PackedStringArray("4.6", "Mobile")
 [autoload]
 
 SceneManager="*res://scripts/scene_manager.gd"
+AssetLoader="*res://scripts/asset_loader.gd"
 
 [display]
 
-window/size/viewport_width=1080
-window/size/viewport_height=1920
-window/handheld/orientation=1
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/window_width_override=1280
+window/size/window_height_override=720
 
 [rendering]
 

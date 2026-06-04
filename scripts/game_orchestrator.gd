@@ -6,7 +6,7 @@
 ## Ensures the entire match completes without network connectivity.
 ## Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 3.5
 class_name GameOrchestrator
-extends Node
+extends Node3D
 
 
 ## Emitted when the orchestrator transitions between major game phases.
@@ -75,6 +75,33 @@ var _footstep_timer: float = 0.0
 ## Whether player is currently moving
 var _player_moving: bool = false
 
+## HUD label references (from game.tscn)
+var _hud_health_label: Label = null
+var _hud_shield_label: Label = null
+var _hud_alive_label: Label = null
+var _hud_time_label: Label = null
+var _hud_kills_label: Label = null
+var _hud_phase_label: Label = null
+var _hud_center_message: Label = null
+
+## Visual representations of bots on the map
+var _bot_visuals: Dictionary = {}  # bot.id -> Node3D
+
+## Player visual representation
+var _player_visual: Node3D = null
+
+## Camera following the player
+var _game_camera: Camera3D = null
+
+## Player movement speed in meters per second
+const PLAYER_SPEED: float = 15.0
+
+## Camera height above player
+const CAMERA_HEIGHT: float = 40.0
+
+## Camera angle (look-down angle)
+const CAMERA_ANGLE: float = -60.0
+
 
 func _ready() -> void:
 	# Get GameMap reference from scene tree (it's defined in game.tscn)
@@ -82,9 +109,22 @@ func _ready() -> void:
 	if map_node is GameMap:
 		game_map = map_node
 
+	# Get HUD label references
+	_hud_health_label = get_node_or_null("HUD/TopBar/HealthLabel")
+	_hud_shield_label = get_node_or_null("HUD/TopBar/ShieldLabel")
+	_hud_alive_label = get_node_or_null("HUD/TopBar/AliveLabel")
+	_hud_time_label = get_node_or_null("HUD/TopBar/TimeLabel")
+	_hud_kills_label = get_node_or_null("HUD/TopBar/KillsLabel")
+	_hud_phase_label = get_node_or_null("HUD/TopBar/PhaseLabel")
+	_hud_center_message = get_node_or_null("HUD/CenterMessage")
+
 	_initialize_systems()
 	_wire_signals()
 	_initialized = true
+
+	# Set up visuals for gameplay
+	_setup_player_visual()
+	_game_camera = get_node_or_null("GameCamera")
 
 
 ## Initializes all subsystems that are created internally.
@@ -243,17 +283,16 @@ func _process(delta: float) -> void:
 
 ## Processes active gameplay each frame.
 func _process_active_gameplay(delta: float) -> void:
-	# --- Input → Player Movement ---
+	# --- PC Keyboard/Mouse Input ---
+	_handle_pc_input(delta)
+
+	# --- Input → Player Movement (touch) ---
 	var movement := input_controller.get_movement_vector()
 	if movement.length() > 0.01:
 		_player_moving = true
-		# Move player position (simplified 2D movement for zone/bot calculations)
-		# 5 meters per second at full joystick displacement
-		player_position += movement * 5.0 * delta
-	else:
-		_player_moving = false
-
-	# --- Input → Player Aiming ---
+		player_position += movement * PLAYER_SPEED * delta
+	
+	# --- Input → Player Aiming (touch) ---
 	var aim_delta := input_controller.get_aim_delta()
 	if aim_delta.length() > 0.01:
 		player_facing_degrees += aim_delta.x * 2.0
@@ -263,6 +302,14 @@ func _process_active_gameplay(delta: float) -> void:
 
 	# --- Bot AI Update ---
 	bot_ai_manager.update_all(delta)
+
+	# --- Check for bot eliminations ---
+	var elim := bot_ai_manager.pop_last_elimination()
+	if not elim.is_empty():
+		match_controller.register_elimination(elim["victim"], elim["killer"], "weapon")
+
+	# --- Update bot visuals ---
+	_update_bot_visuals()
 
 	# --- Storm Damage ---
 	_process_storm_damage(delta)
@@ -354,6 +401,151 @@ func _update_hud() -> void:
 	else:
 		hud_manager.update_weapon("Unarmed", 0, 0, 0, 0, true)
 
+	# Update on-screen HUD labels
+	_update_hud_labels()
+
+
+## Creates the player's visual representation on the map.
+func _setup_player_visual() -> void:
+	# Try loading real player model
+	var model_path := "characters/%s_%s.glb" % [player_character_id.to_lower(), player_character_variant.to_lower()]
+	var scene := AssetLoader.load_model(model_path)
+	if scene:
+		_player_visual = scene.instantiate()
+		_player_visual.position = Vector3(player_position.x, 0.0, player_position.y)
+		add_child(_player_visual)
+		return
+
+	# Fallback: blue capsule placeholder
+	_player_visual = MeshInstance3D.new()
+	var capsule := CapsuleMesh.new()
+	capsule.radius = 1.5
+	capsule.height = 4.0
+	_player_visual.mesh = capsule
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.0, 0.5, 1.0)
+	mat.emission_enabled = true
+	mat.emission = Color(0.0, 0.3, 0.8)
+	mat.emission_energy_multiplier = 0.5
+	_player_visual.material_override = mat
+	_player_visual.position = Vector3(player_position.x, 3.0, player_position.y)
+	add_child(_player_visual)
+
+
+## Creates or updates visual representations for all alive bots.
+func _update_bot_visuals() -> void:
+	# Remove visuals for dead bots
+	var to_remove: Array = []
+	for bot_id in _bot_visuals:
+		var found := false
+		for bot in bot_ai_manager.bots:
+			if bot.id == bot_id and bot.is_alive:
+				found = true
+				break
+		if not found:
+			var visual: Node3D = _bot_visuals[bot_id]
+			visual.queue_free()
+			to_remove.append(bot_id)
+	for bot_id in to_remove:
+		_bot_visuals.erase(bot_id)
+
+	# Create or update visuals for alive bots
+	for bot in bot_ai_manager.bots:
+		if not bot.is_alive:
+			continue
+		if not _bot_visuals.has(bot.id):
+			# Try loading real model
+			var model_path := "characters/%s_%s.glb" % [bot.character_id.to_lower(), bot.character_variant.to_lower()]
+			var scene := AssetLoader.load_model(model_path)
+			var visual: Node3D
+			if scene:
+				visual = scene.instantiate()
+			else:
+				# Fallback: red capsule
+				var mesh_inst := MeshInstance3D.new()
+				var capsule := CapsuleMesh.new()
+				capsule.radius = 1.2
+				capsule.height = 3.5
+				mesh_inst.mesh = capsule
+				var mat := StandardMaterial3D.new()
+				mat.albedo_color = Color(0.9, 0.2, 0.2)
+				mesh_inst.material_override = mat
+				visual = mesh_inst
+			add_child(visual)
+			_bot_visuals[bot.id] = visual
+		# Update position
+		var visual: Node3D = _bot_visuals[bot.id]
+		visual.position = Vector3(bot.position.x, 3.0, bot.position.y)
+
+
+## Handles keyboard/mouse input for PC testing.
+func _handle_pc_input(delta: float) -> void:
+	var move_dir := Vector2.ZERO
+
+	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
+		move_dir.y -= 1.0
+	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
+		move_dir.y += 1.0
+	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
+		move_dir.x -= 1.0
+	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
+		move_dir.x += 1.0
+
+	if move_dir.length() > 0.0:
+		move_dir = move_dir.normalized()
+		player_position += move_dir * PLAYER_SPEED * delta
+		_player_moving = true
+	else:
+		_player_moving = false
+
+	# Update player visual position
+	if _player_visual != null:
+		_player_visual.position = Vector3(player_position.x, 3.0, player_position.y)
+
+	# Update camera to follow player
+	if _game_camera != null:
+		_game_camera.position = Vector3(player_position.x, CAMERA_HEIGHT, player_position.y + 25.0)
+		_game_camera.rotation_degrees = Vector3(CAMERA_ANGLE, 0, 0)
+
+	# Shoot with left mouse button or spacebar
+	if Input.is_action_just_pressed("ui_accept") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		_on_player_fire()
+
+
+## Updates the on-screen HUD labels with current game state.
+func _update_hud_labels() -> void:
+	if _hud_health_label != null:
+		_hud_health_label.text = "HP: %d" % int(player_health)
+	if _hud_shield_label != null:
+		_hud_shield_label.text = "Shield: %d" % int(player_shield)
+	if _hud_alive_label != null:
+		_hud_alive_label.text = "Alive: %d" % match_controller.alive_count
+	if _hud_time_label != null:
+		var mins: int = int(match_controller.elapsed_time) / 60
+		var secs: int = int(match_controller.elapsed_time) % 60
+		_hud_time_label.text = "Time: %d:%02d" % [mins, secs]
+	if _hud_kills_label != null:
+		_hud_kills_label.text = "Kills: %d" % match_controller.match_stats.get("kills", 0)
+	if _hud_phase_label != null:
+		match match_controller.match_state:
+			Enums.MatchState.DROP:
+				_hud_phase_label.text = "Phase: Drop"
+			Enums.MatchState.ACTIVE:
+				_hud_phase_label.text = "Zone: %d" % zone_manager.current_phase
+			Enums.MatchState.ENDED:
+				_hud_phase_label.text = "Match Over"
+			_:
+				_hud_phase_label.text = ""
+	if _hud_center_message != null:
+		if match_controller.match_state == Enums.MatchState.DROP:
+			_hud_center_message.text = "Drop Phase - Landing..."
+			_hud_center_message.visible = true
+		elif match_controller.match_state == Enums.MatchState.ACTIVE and match_controller.elapsed_time < 3.0:
+			_hud_center_message.text = "Fight!"
+			_hud_center_message.visible = true
+		else:
+			_hud_center_message.visible = false
+
 
 ## Processes footstep audio based on player movement.
 func _process_footstep_audio(delta: float) -> void:
@@ -432,7 +624,7 @@ func _on_match_ended(result: Dictionary) -> void:
 	audio_manager.stop_storm_ambient()
 
 	# Determine if victory or defeat
-	var is_victory := result.get("placement", 0) == 1
+	var is_victory: bool = (result.get("placement", 0) == 1)
 
 	# Play victory music if won
 	if is_victory:

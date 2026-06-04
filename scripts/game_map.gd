@@ -155,6 +155,21 @@ func get_terrain_color(terrain_type: MapData.TerrainType) -> Color:
 	return Color(0.5, 0.5, 0.5, 1.0)
 
 
+## Returns the texture filename for a terrain type.
+func _get_terrain_texture_name(terrain_type: MapData.TerrainType) -> String:
+	match terrain_type:
+		MapData.TerrainType.URBAN:
+			return "concrete"
+		MapData.TerrainType.OPEN_FIELD:
+			return "grass"
+		MapData.TerrainType.FORESTED:
+			return "forest_floor"
+		MapData.TerrainType.ELEVATED:
+			return "rock"
+		_:
+			return "grass"
+
+
 ## Returns the glow color for a given rarity tier.
 func get_rarity_glow_color(rarity: Enums.RarityTier) -> Color:
 	if RARITY_GLOW_COLORS.has(rarity):
@@ -251,7 +266,13 @@ func _create_terrain_region(region: MapData.TerrainRegion) -> void:
 
 	# Apply terrain material with blocky color
 	var material := StandardMaterial3D.new()
-	material.albedo_color = get_terrain_color(region.terrain_type)
+	var texture_name := _get_terrain_texture_name(region.terrain_type)
+	var texture := AssetLoader.load_texture("textures/terrain/%s.png" % texture_name)
+	if texture:
+		material.albedo_texture = texture
+		material.uv1_scale = Vector3(10, 10, 10)
+	else:
+		material.albedo_color = get_terrain_color(region.terrain_type)
 	material.roughness = 0.9
 	material.metallic = 0.0
 	mesh_instance.material_override = material

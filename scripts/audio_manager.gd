@@ -238,3 +238,17 @@ func _get_track_name(track: MusicTrack) -> String:
 			return "victory"
 		_:
 			return "unknown"
+
+
+## Attempts to load a music track from assets. Returns the stream or null.
+func get_music_stream(track: MusicTrack) -> AudioStream:
+	var track_name := _get_track_name(track)
+	return AssetLoader.load_audio("audio/music/%s.ogg" % track_name)
+
+## Attempts to load an SFX from assets. Returns the stream or null.
+func get_sfx_stream(sound_name: String) -> AudioStream:
+	return AssetLoader.load_audio("audio/sfx/%s.ogg" % sound_name)
+
+## Attempts to load a UI sound from assets. Returns the stream or null.
+func get_ui_stream(sound_name: String) -> AudioStream:
+	return AssetLoader.load_audio("audio/ui/%s.ogg" % sound_name)

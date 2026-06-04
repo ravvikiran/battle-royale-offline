@@ -155,27 +155,31 @@ func _update_login_button() -> void:
 func _load_character_model() -> void:
 	if preview_model_root == null:
 		return
-
 	# Clear existing model
 	for child in preview_model_root.get_children():
 		child.queue_free()
 
 	var character_data := _get_character_data(_displayed_character)
 	var color_hex: String = character_data.get("primary_color", "#FF6B35")
-	var model_color := Color(color_hex)
 
-	# Create a placeholder character model (blocky style consistent with art direction)
+	# Try loading real model from assets
+	var model_path := "characters/%s_%s.glb" % [_displayed_character.to_lower(), _displayed_variant.to_lower()]
+	var scene := AssetLoader.load_model(model_path)
+	if scene:
+		var model := scene.instantiate()
+		preview_model_root.add_child(model)
+		return
+
+	# Fallback: procedural placeholder
+	var model_color := Color(color_hex)
 	var mesh_instance := MeshInstance3D.new()
 	var capsule_mesh := CapsuleMesh.new()
 	capsule_mesh.radius = 0.3
 	capsule_mesh.height = 1.6
 	mesh_instance.mesh = capsule_mesh
-
-	# Apply character color material
 	var material := StandardMaterial3D.new()
 	material.albedo_color = model_color
 	mesh_instance.material_override = material
-
 	preview_model_root.add_child(mesh_instance)
 
 

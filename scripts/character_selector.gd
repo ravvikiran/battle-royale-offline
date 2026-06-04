@@ -216,29 +216,33 @@ func _begin_model_load() -> void:
 ## In a full implementation, this loads the actual .glb/.tscn model.
 ## For now, creates a placeholder representation using the character's color.
 func _load_character_model() -> void:
-	# Clear existing model
 	for child in preview_model_root.get_children():
 		child.queue_free()
 
 	var character := _get_selected_character()
+	var character_id: String = character.get("id", "BLITZ")
 	var color_hex: String = character.get("primary_color", "#FFFFFF")
-	var model_color := Color(color_hex)
 
-	# Create a placeholder character model (blocky style)
+	# Try loading real model
+	var model_path := "characters/%s_%s.glb" % [character_id.to_lower(), _selected_variant.to_lower()]
+	var scene := AssetLoader.load_model(model_path)
+	if scene:
+		var model := scene.instantiate()
+		preview_model_root.add_child(model)
+		_on_model_loaded_success()
+		return
+
+	# Fallback: procedural placeholder
+	var model_color := Color(color_hex)
 	var mesh_instance := MeshInstance3D.new()
 	var capsule_mesh := CapsuleMesh.new()
 	capsule_mesh.radius = 0.3
 	capsule_mesh.height = 1.6
 	mesh_instance.mesh = capsule_mesh
-
-	# Apply character color material
 	var material := StandardMaterial3D.new()
 	material.albedo_color = model_color
 	mesh_instance.material_override = material
-
 	preview_model_root.add_child(mesh_instance)
-
-	# Mark as loaded
 	_on_model_loaded_success()
 
 
