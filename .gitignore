@@ -1,0 +1,26 @@
+# Godot 4.x generated files
+.godot/
+
+# Godot export files
+*.pck
+*.apk
+*.aab
+export_presets.cfg
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.kiro/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+android/build/
+
+# User-specific progress data (generated at runtime)
+user://
