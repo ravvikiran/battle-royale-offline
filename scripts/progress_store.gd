@@ -455,18 +455,24 @@ func _compute_career_stats(user_id: String) -> Dictionary:
 
 ## Attempts to flush previously unsaved results.
 func _flush_unsaved_results() -> void:
-	var still_unsaved: Array = []
+	if unsaved_results.is_empty():
+		return
 
+	# Add unsaved records to match_history
 	for record in unsaved_results:
 		if not _data.has("match_history"):
 			_data["match_history"] = []
 		_data["match_history"].append(record)
 
+	# Try saving
 	var save_ok := _save_data()
-	if not save_ok:
-		still_unsaved = unsaved_results.duplicate()
-
-	unsaved_results = still_unsaved
+	if save_ok:
+		unsaved_results.clear()
+	else:
+		# Remove the records we just added since save failed
+		var history: Array = _data.get("match_history", [])
+		for record in unsaved_results:
+			history.erase(record)
 
 
 ## Returns the current timestamp as an ISO-8601 string.

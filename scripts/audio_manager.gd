@@ -241,14 +241,16 @@ func _get_track_name(track: MusicTrack) -> String:
 
 
 ## Attempts to load a music track from assets. Returns the stream or null.
-func get_music_stream(track: MusicTrack) -> AudioStream:
+## Note: Caller must pass the result of AssetLoader.load_audio() since AudioManager
+## is RefCounted and cannot access autoload singletons directly.
+func get_music_stream_path(track: MusicTrack) -> String:
 	var track_name := _get_track_name(track)
-	return AssetLoader.load_audio("audio/music/%s.ogg" % track_name)
+	return "audio/music/%s.ogg" % track_name
 
-## Attempts to load an SFX from assets. Returns the stream or null.
-func get_sfx_stream(sound_name: String) -> AudioStream:
-	return AssetLoader.load_audio("audio/sfx/%s.ogg" % sound_name)
+## Returns the asset path for an SFX sound.
+func get_sfx_stream_path(sound_name: String) -> String:
+	return "audio/sfx/%s.ogg" % sound_name
 
-## Attempts to load a UI sound from assets. Returns the stream or null.
-func get_ui_stream(sound_name: String) -> AudioStream:
-	return AssetLoader.load_audio("audio/ui/%s.ogg" % sound_name)
+## Returns the asset path for a UI sound.
+func get_ui_stream_path(sound_name: String) -> String:
+	return "audio/ui/%s.ogg" % sound_name

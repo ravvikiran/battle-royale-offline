@@ -121,9 +121,6 @@ func _ready() -> void:
 	_initialize_systems()
 	_wire_signals()
 	_initialized = true
-
-	# Set up visuals for gameplay
-	_setup_player_visual()
 	_game_camera = get_node_or_null("GameCamera")
 
 
@@ -220,6 +217,9 @@ func start_match_from_lobby(character_id: String, variant: String, settings: Dic
 	player_character_id = character_id
 	player_character_variant = variant
 	current_match_settings = settings
+
+	# Set up player visual with correct character
+	_setup_player_visual()
 
 	# Merge character info into settings for MatchController
 	var full_settings := settings.duplicate()
@@ -457,25 +457,25 @@ func _update_bot_visuals() -> void:
 			# Try loading real model
 			var model_path := "characters/%s_%s.glb" % [bot.character_id.to_lower(), bot.character_variant.to_lower()]
 			var scene := AssetLoader.load_model(model_path)
-			var visual: Node3D
+			var new_visual: Node3D
 			if scene:
-				visual = scene.instantiate()
+				new_visual = scene.instantiate()
 			else:
 				# Fallback: red capsule
 				var mesh_inst := MeshInstance3D.new()
-				var capsule := CapsuleMesh.new()
-				capsule.radius = 1.2
-				capsule.height = 3.5
-				mesh_inst.mesh = capsule
-				var mat := StandardMaterial3D.new()
-				mat.albedo_color = Color(0.9, 0.2, 0.2)
-				mesh_inst.material_override = mat
-				visual = mesh_inst
-			add_child(visual)
-			_bot_visuals[bot.id] = visual
+				var bot_capsule := CapsuleMesh.new()
+				bot_capsule.radius = 1.2
+				bot_capsule.height = 3.5
+				mesh_inst.mesh = bot_capsule
+				var bot_mat := StandardMaterial3D.new()
+				bot_mat.albedo_color = Color(0.9, 0.2, 0.2)
+				mesh_inst.material_override = bot_mat
+				new_visual = mesh_inst
+			add_child(new_visual)
+			_bot_visuals[bot.id] = new_visual
 		# Update position
-		var visual: Node3D = _bot_visuals[bot.id]
-		visual.position = Vector3(bot.position.x, 3.0, bot.position.y)
+		var existing_visual: Node3D = _bot_visuals[bot.id]
+		existing_visual.position = Vector3(bot.position.x, 3.0, bot.position.y)
 
 
 ## Handles keyboard/mouse input for PC testing.

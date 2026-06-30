@@ -372,6 +372,6 @@ func _load_weapon_configs() -> void:
 	if error != OK:
 		return
 
-	var data: Dictionary = json.data
-	if data.has("weapons"):
+	var data = json.data
+	if data is Dictionary and data.has("weapons"):
 		_weapon_configs = data["weapons"]

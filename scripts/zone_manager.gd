@@ -139,8 +139,8 @@ func advance_phase() -> void:
 			phase_state = Enums.PhaseState.WAITING
 			_warning_emitted = false
 			
-			if current_phase <= total_phases:
-				var config := _get_current_phase_config()
+			var config := _get_current_phase_config()
+			if not config.is_empty():
 				_wait_duration = config.get("wait_seconds", 60.0) * _speed_multiplier
 				_wait_timer = _wait_duration
 				
@@ -251,8 +251,11 @@ func _load_phase_configs() -> void:
 		var error := json.parse(file.get_as_text())
 		file.close()
 		if error == OK:
-			var data: Dictionary = json.data
-			_phase_configs = data.get("phases", [])
+			var data = json.data
+			if data is Dictionary:
+				_phase_configs = data.get("phases", [])
+			else:
+				_generate_default_phases()
 		else:
 			_generate_default_phases()
 	else:

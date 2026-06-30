@@ -83,7 +83,7 @@ func _move_bot(bot: BotInstance, delta: float) -> void:
 
 ## Resolves combat between bots that are in ENGAGING state.
 ## Each engaging bot has a chance to hit its target based on accuracy.
-func _resolve_bot_combat(delta: float) -> void:
+func _resolve_bot_combat(_delta: float) -> void:
 	for bot in bots:
 		if not bot.is_alive:
 			continue
@@ -97,10 +97,12 @@ func _resolve_bot_combat(delta: float) -> void:
 		if target == null:
 			continue
 
-		# Fire rate: bots shoot approximately once per second
-		# Use reaction timer as fire cooldown
-		if not bot.is_reaction_ready(0.0):
-			continue
+		# Fire rate: bots shoot based on difficulty
+		# Use a random chance per frame scaled by difficulty reaction time
+		# Lower reaction time = higher fire chance per frame
+		var fire_chance: float = 1.0 / (bot.reaction_time_ms / 1000.0 * 60.0)
+		if randf() > fire_chance:
+			continue  # Not firing this frame
 
 		# Accuracy check
 		if randf() > bot.accuracy:
@@ -228,3 +230,6 @@ func _get_nearest_enemy_position(bot: BotInstance) -> Vector2:
 func distribute_bot_positions(positions: Array[Vector2]) -> void:
 	for i in range(mini(positions.size(), bots.size())):
 		bots[i].position = positions[i]
+		# Give bots weapons after landing (simulates looting)
+		bots[i].has_weapon = true
+		bots[i].state = Enums.BotState.ROAMING
