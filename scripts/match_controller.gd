@@ -34,8 +34,8 @@ var match_stats: Dictionary = {
 	"survival_time_seconds": 0.0,
 }
 
-## The player's unique participant ID (always 0).
-const PLAYER_ID: int = 0
+## The player's unique participant ID (always -100 to avoid conflicts with bot IDs).
+const PLAYER_ID: int = -100
 
 ## Total number of participants (player + bots).
 var total_participants: int = 0
@@ -113,6 +113,9 @@ func start_match(settings: Dictionary) -> void:
 	# Spawn bots via BotAIManager
 	if bot_ai_manager == null:
 		bot_ai_manager = BotAIManager.new()
+		# Wire zone manager if available
+		if zone_manager != null:
+			bot_ai_manager.zone_manager = zone_manager
 	var difficulty: Enums.Difficulty = settings.get("bot_difficulty", Enums.Difficulty.MEDIUM)
 	bot_ai_manager.spawn_bots(bot_count, difficulty)
 
@@ -158,8 +161,10 @@ func end_drop_phase() -> void:
 		player_position = _get_random_safe_zone_position()
 		player_has_dropped = true
 
-	# Distribute bots to random map positions
-	_distribute_bots()
+	# Distribute bots to random map positions (if not already distributed)
+	if bot_distribute_pending:
+		_distribute_bots()
+		bot_distribute_pending = false
 
 	# Transition to ACTIVE state
 	_set_match_state(Enums.MatchState.ACTIVE)

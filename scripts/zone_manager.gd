@@ -145,8 +145,11 @@ func advance_phase() -> void:
 				_wait_timer = _wait_duration
 				
 				# Calculate next zone for the new phase
-				if current_phase < total_phases:
-					_calculate_next_zone_for_phase(current_phase)
+				_calculate_next_zone_for_phase(current_phase)
+		else:
+			# Final phase completed — zone stays at minimum
+			phase_state = Enums.PhaseState.WAITING
+			_wait_timer = 0.0
 
 
 ## Returns the storm damage per second for the given phase (1-based).
@@ -234,12 +237,16 @@ func start_first_phase() -> void:
 	phase_state = Enums.PhaseState.WAITING
 	_warning_emitted = false
 	
+	# Set current zone to the initial (full map) zone
+	if _stored_zone_centers.size() > 0:
+		current_center = _stored_zone_centers[0]
+		current_radius = _stored_zone_radii[0]
+	
 	var config := _get_current_phase_config()
 	_wait_duration = config.get("wait_seconds", 60.0) * _speed_multiplier
 	_wait_timer = _wait_duration
 	
-	# Set current zone to the initial (full map) zone
-	# next zone is already calculated during initialization
+	# next zone is the target for phase 1
 	_calculate_next_zone_for_phase(1)
 
 

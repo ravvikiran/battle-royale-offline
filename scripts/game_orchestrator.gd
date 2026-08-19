@@ -182,8 +182,9 @@ func _initialize_systems() -> void:
 	match_controller.bot_ai_manager = bot_ai_manager
 	match_controller.map_data = map_data
 
-	# Wire BotAIManager → ZoneManager
+	# Wire BotAIManager → ZoneManager and MapData
 	bot_ai_manager.zone_manager = zone_manager
+	bot_ai_manager.map_data = map_data
 
 
 ## Wires all signal connections between systems.
@@ -259,17 +260,33 @@ func start_match_from_lobby(character_id: String, variant: String, settings: Dic
 	# Begin drop phase
 	match_controller.begin_drop_phase()
 
+	# For PC testing, auto-select a drop position near map center
+	# In the full mobile version, the player selects via tap on minimap
+	var drop_pos := map_data.get_map_bounds().get_center()
+	drop_pos += Vector2(randf_range(-50.0, 50.0), randf_range(-50.0, 50.0))
+	player_position = drop_pos
+	match_controller.player_select_drop(drop_pos)
+
 	# Show location labels during drop phase
 	if game_map != null:
 		game_map.set_drop_phase_active(true)
 
 	phase_changed.emit("drop")
 
+	# Auto-end drop phase after a short delay for PC testing (3 seconds)
+	get_tree().create_timer(3.0).timeout.connect(_auto_end_drop_phase)
+
 
 ## Called when the player selects a drop location during the drop phase.
 func player_select_drop_location(position: Vector2) -> void:
 	player_position = position
 	match_controller.player_select_drop(position)
+
+
+## Auto-ends the drop phase after the short PC testing delay.
+func _auto_end_drop_phase() -> void:
+	if match_controller.match_state == Enums.MatchState.DROP:
+		match_controller.end_drop_phase()
 
 
 ## Main frame update — processes all per-frame game logic.
@@ -291,6 +308,14 @@ func _process_active_gameplay(delta: float) -> void:
 	if movement.length() > 0.01:
 		_player_moving = true
 		player_position += movement * PLAYER_SPEED * delta
+	elif not _player_moving:
+		pass  # _player_moving already set by _handle_pc_input
+
+	# Clamp player position within map bounds
+	if map_data != null:
+		var bounds := map_data.get_map_bounds()
+		player_position.x = clampf(player_position.x, bounds.position.x, bounds.position.x + bounds.size.x)
+		player_position.y = clampf(player_position.y, bounds.position.y, bounds.position.y + bounds.size.y)
 	
 	# --- Input → Player Aiming (touch) ---
 	var aim_delta := input_controller.get_aim_delta()
@@ -305,8 +330,9 @@ func _process_active_gameplay(delta: float) -> void:
 
 	# --- Check for bot eliminations ---
 	var elim := bot_ai_manager.pop_last_elimination()
-	if not elim.is_empty():
+	while not elim.is_empty():
 		match_controller.register_elimination(elim["victim"], elim["killer"], "weapon")
+		elim = bot_ai_manager.pop_last_elimination()
 
 	# --- Update bot visuals ---
 	_update_bot_visuals()
@@ -496,7 +522,9 @@ func _handle_pc_input(delta: float) -> void:
 		player_position += move_dir * PLAYER_SPEED * delta
 		_player_moving = true
 	else:
-		_player_moving = false
+		# Only set to false if touch joystick isn't active either
+		if input_controller.get_movement_vector().length() <= 0.01:
+			_player_moving = false
 
 	# Update player visual position
 	if _player_visual != null:
@@ -507,8 +535,8 @@ func _handle_pc_input(delta: float) -> void:
 		_game_camera.position = Vector3(player_position.x, CAMERA_HEIGHT, player_position.y + 25.0)
 		_game_camera.rotation_degrees = Vector3(CAMERA_ANGLE, 0, 0)
 
-	# Shoot with left mouse button or spacebar
-	if Input.is_action_just_pressed("ui_accept") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+	# Shoot with spacebar (left mouse handled in _unhandled_input to avoid conflicts)
+	if Input.is_action_just_pressed("ui_accept"):
 		_on_player_fire()
 
 
@@ -896,12 +924,12 @@ func _get_participant_name(participant_id: int) -> String:
 func _generate_match_id() -> String:
 	var chars := "0123456789abcdef"
 	var uuid := ""
-	for i in range(32):
-		if i == 8 or i == 12 or i == 16 or i == 20:
+	for i in range(36):
+		if i == 8 or i == 13 or i == 18 or i == 23:
 			uuid += "-"
-		if i == 12:
+		elif i == 14:
 			uuid += "4"  # Version 4
-		elif i == 16:
+		elif i == 19:
 			uuid += chars[8 + (randi() % 4)]  # Variant bits
 		else:
 			uuid += chars[randi() % 16]

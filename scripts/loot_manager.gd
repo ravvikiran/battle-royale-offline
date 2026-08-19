@@ -357,8 +357,6 @@ func _ensure_minimum_points(center: Vector2, radius: float, existing: Array[Vect
 func _load_weapon_configs() -> void:
 	_weapon_configs = []
 	var file_path := "res://data/weapons.json"
-	if not FileAccess.file_exists(file_path):
-		return
 
 	var file := FileAccess.open(file_path, FileAccess.READ)
 	if file == null:

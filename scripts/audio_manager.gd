@@ -105,13 +105,15 @@ static func calculate_distance_attenuation(distance: float, max_distance: float)
 ## [param listener_position]: The listener's world position for distance calculation.
 ## Returns the calculated volume factor (0.0 to 1.0) for testing purposes.
 func play_3d_sound(clip: String, position: Vector3, max_distance: float, listener_position: Vector3 = Vector3.ZERO) -> float:
+	if max_distance <= 0.0:
+		return 0.0
 	var distance := position.distance_to(listener_position)
 	var attenuation := calculate_distance_attenuation(distance, max_distance)
 
 	if attenuation <= 0.0:
 		return 0.0
 
-	var volume_factor := attenuation * (sfx_volume / 100.0)
+	var volume_factor := attenuation * (float(sfx_volume) / 100.0)
 
 	# In a full implementation, this would create an AudioStreamPlayer3D node
 	# and configure it with the clip, position, and volume.
@@ -124,7 +126,7 @@ func play_3d_sound(clip: String, position: Vector3, max_distance: float, listene
 ## [param clip]: The audio clip identifier to play.
 ## Returns the volume factor applied.
 func play_ui_sound(clip: String) -> float:
-	var volume_factor := sfx_volume / 100.0
+	var volume_factor := float(sfx_volume) / 100.0
 	# In a full implementation, this would create an AudioStreamPlayer node
 	# (non-positional) and play the clip at the given volume.
 	return volume_factor
@@ -138,7 +140,7 @@ func play_music(track: MusicTrack) -> float:
 	# Stop current music if playing
 	_current_music_track = _get_track_name(track)
 
-	var volume_factor := music_volume / 100.0
+	var volume_factor := float(music_volume) / 100.0
 	# In a full implementation, this would create/reuse an AudioStreamPlayer
 	# and crossfade to the new track.
 	return volume_factor
@@ -171,7 +173,7 @@ func is_storm_ambient_playing() -> bool:
 ## This distinguishes the player's footsteps from enemy footsteps which are spatialized.
 ## Returns the volume factor applied.
 func play_own_footstep() -> float:
-	var volume_factor := (sfx_volume / 100.0) * OWN_FOOTSTEP_VOLUME_SCALE
+	var volume_factor := (float(sfx_volume) / 100.0) * OWN_FOOTSTEP_VOLUME_SCALE
 	# In a full implementation, this would play via a non-positional AudioStreamPlayer
 	# at reduced volume (OWN_FOOTSTEP_VOLUME_SCALE) to distinguish from enemy footsteps.
 	# No spatialization is applied regardless of spatial_audio_enabled setting.
@@ -187,15 +189,15 @@ func play_audio_cue(cue: AudioCue) -> float:
 	match cue:
 		AudioCue.ZONE_WARNING:
 			# Zone warnings use voice volume channel (announcer-style)
-			volume_factor = voice_volume / 100.0
+			volume_factor = float(voice_volume) / 100.0
 		AudioCue.ITEM_PICKUP:
 			# Item pickups use sfx volume channel
-			volume_factor = sfx_volume / 100.0
+			volume_factor = float(sfx_volume) / 100.0
 		AudioCue.ELIMINATION:
 			# Eliminations use sfx volume channel
-			volume_factor = sfx_volume / 100.0
+			volume_factor = float(sfx_volume) / 100.0
 		_:
-			volume_factor = sfx_volume / 100.0
+			volume_factor = float(sfx_volume) / 100.0
 
 	# In a full implementation, each cue type would map to a distinct audio resource
 	# and be played via a non-positional AudioStreamPlayer.

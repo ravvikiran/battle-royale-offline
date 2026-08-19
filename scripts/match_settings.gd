@@ -58,11 +58,12 @@ func _ready() -> void:
 func _load_zone_phases() -> void:
 	var file := FileAccess.open("res://data/zone_phases.json", FileAccess.READ)
 	if file:
+		var json_text := file.get_as_text()
+		file.close()
 		var json := JSON.new()
-		var error := json.parse(file.get_as_text())
+		var error := json.parse(json_text)
 		if error == OK:
 			_zone_phases_data = json.data
-		file.close()
 
 
 ## Set up UI elements with default values and connect signals.

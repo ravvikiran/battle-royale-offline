@@ -232,10 +232,14 @@ func _clear_map_contents() -> void:
 	if loot_container != null:
 		for child in loot_container.get_children():
 			child.queue_free()
-	# Remove any previously added lighting nodes
+	# Remove any previously added lighting nodes immediately to avoid duplicates
+	var to_remove: Array[Node] = []
 	for child in get_children():
 		if child is DirectionalLight3D or child is WorldEnvironment:
-			child.queue_free()
+			to_remove.append(child)
+	for node in to_remove:
+		remove_child(node)
+		node.queue_free()
 	is_loaded = false
 
 

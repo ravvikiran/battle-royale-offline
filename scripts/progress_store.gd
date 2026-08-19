@@ -117,13 +117,14 @@ func save_match_result(result: Dictionary) -> Dictionary:
 
 	if not save_ok:
 		# Retain in unsaved_results for later retry
+		# Note: The record is already in _data["match_history"] in memory,
+		# we just track it here to know there's unsaved data on disk.
 		unsaved_results.append(match_record)
 		save_failed_notification.emit("Match results could not be saved. They will be retained until the next successful save.")
 		return {"success": false, "error": "storage_write_failed"}
 
-	# If save succeeded, also try to flush any previously unsaved results
-	if unsaved_results.size() > 0:
-		_flush_unsaved_results()
+	# If save succeeded, also clear any previously unsaved results (they're now persisted)
+	unsaved_results.clear()
 
 	return {"success": true}
 
@@ -453,26 +454,16 @@ func _compute_career_stats(user_id: String) -> Dictionary:
 	}
 
 
-## Attempts to flush previously unsaved results.
+## Attempts to flush previously unsaved results by re-saving the data file.
+## Since unsaved records are already in _data["match_history"] in memory,
+## we just need to retry the disk write.
 func _flush_unsaved_results() -> void:
 	if unsaved_results.is_empty():
 		return
 
-	# Add unsaved records to match_history
-	for record in unsaved_results:
-		if not _data.has("match_history"):
-			_data["match_history"] = []
-		_data["match_history"].append(record)
-
-	# Try saving
 	var save_ok := _save_data()
 	if save_ok:
 		unsaved_results.clear()
-	else:
-		# Remove the records we just added since save failed
-		var history: Array = _data.get("match_history", [])
-		for record in unsaved_results:
-			history.erase(record)
 
 
 ## Returns the current timestamp as an ISO-8601 string.

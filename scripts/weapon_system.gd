@@ -17,7 +17,7 @@ const DAMAGE_FALLOFF_ZERO_MULTIPLIER: float = 2.0
 ## Calculates final damage for a weapon at a given distance.
 ## Applies rarity modifier to base damage, then applies distance falloff:
 ## - Full damage at distance <= effective_range
-## - Linear falloff from 100% to 50% between effective_range and 2× effective_range
+## - Linear falloff from 100% to 0% between effective_range and 2× effective_range
 ## - Zero damage beyond 2× effective_range
 static func calculate_damage(weapon: WeaponData, distance: float) -> float:
 	var effective_range := weapon.effective_range
@@ -34,9 +34,9 @@ static func calculate_damage(weapon: WeaponData, distance: float) -> float:
 	if distance <= effective_range:
 		return modified_damage
 
-	# Linear falloff from 100% to 50% between effective_range and 2× effective_range
+	# Linear falloff from 100% to 0% between effective_range and 2× effective_range
 	var falloff_progress := (distance - effective_range) / (max_range - effective_range)
-	var damage_multiplier := 1.0 - (falloff_progress * 0.5)
+	var damage_multiplier := 1.0 - falloff_progress
 	return modified_damage * damage_multiplier
 
 
@@ -50,6 +50,7 @@ static func apply_rarity_modifier(base: float, rarity: Enums.RarityTier) -> floa
 
 ## Returns the accuracy for a weapon at a given rarity tier.
 ## Adds 5% bonus per tier above Common to the weapon's base accuracy.
+## Capped at 1.0 (100% accuracy).
 static func get_accuracy(weapon: WeaponData, rarity: Enums.RarityTier) -> float:
 	var rarity_index := int(rarity)
-	return weapon.accuracy_base + (RARITY_ACCURACY_BONUS * rarity_index)
+	return minf(weapon.accuracy_base + (RARITY_ACCURACY_BONUS * rarity_index), 1.0)

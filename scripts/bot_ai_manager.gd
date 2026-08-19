@@ -16,6 +16,9 @@ var engagement_range: float = 75.0
 ## Reference to the zone manager for safe zone queries.
 var zone_manager: ZoneManager = null
 
+## Reference to map data for bounds clamping.
+var map_data: MapData = null
+
 
 ## Engagement range constants per difficulty level.
 const ENGAGEMENT_RANGES: Dictionary = {
@@ -70,15 +73,40 @@ func update_all(delta: float) -> void:
 		# Move bot based on current state
 		_move_bot(bot, delta)
 
+		# Clamp bot position within map bounds
+		if map_data != null:
+			var bounds := map_data.get_map_bounds()
+			bot.position.x = clampf(bot.position.x, bounds.position.x, bounds.position.x + bounds.size.x)
+			bot.position.y = clampf(bot.position.y, bounds.position.y, bounds.position.y + bounds.size.y)
+
 	# Resolve bot-vs-bot combat
 	_resolve_bot_combat(delta)
 
 
 ## Moves a bot based on its current FSM state.
 func _move_bot(bot: BotInstance, delta: float) -> void:
-	if bot.movement_direction.length() > 0.01:
-		var speed := 8.0  # meters per second
-		bot.position += bot.movement_direction * speed * delta
+	match bot.state:
+		Enums.BotState.ROAMING:
+			# Random direction changes for roaming
+			if bot.movement_direction.length() < 0.01 or randf() < 0.02:
+				var angle := randf() * TAU
+				bot.movement_direction = Vector2(cos(angle), sin(angle))
+			bot.position += bot.movement_direction * 6.0 * delta
+		Enums.BotState.FLEEING:
+			if bot.movement_direction.length() > 0.01:
+				bot.position += bot.movement_direction * 10.0 * delta
+		Enums.BotState.ENGAGING:
+			# Move toward enemy at reduced speed
+			if bot.movement_direction.length() > 0.01:
+				bot.position += bot.movement_direction * 4.0 * delta
+		Enums.BotState.LOOTING:
+			# Move toward nearest loot (or wander)
+			if bot.movement_direction.length() < 0.01 or randf() < 0.03:
+				var angle := randf() * TAU
+				bot.movement_direction = Vector2(cos(angle), sin(angle))
+			bot.position += bot.movement_direction * 5.0 * delta
+		Enums.BotState.HEALING:
+			pass  # Stay still while healing
 
 
 ## Resolves combat between bots that are in ENGAGING state.
@@ -114,22 +142,17 @@ func _resolve_bot_combat(_delta: float) -> void:
 
 		# Check if target is eliminated
 		if not target.is_alive:
-			_last_elimination_killer = bot.id
-			_last_elimination_victim = target.id
+			_pending_eliminations.append({"killer": bot.id, "victim": target.id})
 
 
-## Tracks the last elimination for signaling
-var _last_elimination_killer: int = -1
-var _last_elimination_victim: int = -1
+## Queue of pending eliminations for signaling
+var _pending_eliminations: Array = []
 
 
-## Returns the last elimination pair and clears it.
+## Returns the last elimination pair and removes it from the queue.
 func pop_last_elimination() -> Dictionary:
-	if _last_elimination_victim >= 0:
-		var result := {"killer": _last_elimination_killer, "victim": _last_elimination_victim}
-		_last_elimination_killer = -1
-		_last_elimination_victim = -1
-		return result
+	if _pending_eliminations.size() > 0:
+		return _pending_eliminations.pop_front()
 	return {}
 
 

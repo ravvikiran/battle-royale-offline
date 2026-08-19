@@ -272,21 +272,30 @@ func _input(event: InputEvent) -> void:
 	if not _model_loaded:
 		return
 
+	# Only process rotation if the preview viewport is visible and focused
+	if not preview_viewport.visible:
+		return
+
 	# Handle touch drag for rotation on the preview area
 	if event is InputEventScreenDrag:
-		_preview_rotation += event.relative.x * 0.5
-		_preview_rotation = fmod(_preview_rotation, 360.0)
-		if _preview_rotation < 0.0:
-			_preview_rotation += 360.0
-		_apply_rotation()
+		# Check if the touch is within the preview viewport area
+		var vp_rect := preview_viewport.get_global_rect()
+		if vp_rect.has_point(event.position):
+			_preview_rotation += event.relative.x * 0.5
+			_preview_rotation = fmod(_preview_rotation, 360.0)
+			if _preview_rotation < 0.0:
+				_preview_rotation += 360.0
+			_apply_rotation()
 
 	# Handle mouse drag for rotation (desktop testing)
 	elif event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		_preview_rotation += event.relative.x * 0.5
-		_preview_rotation = fmod(_preview_rotation, 360.0)
-		if _preview_rotation < 0.0:
-			_preview_rotation += 360.0
-		_apply_rotation()
+		var vp_rect := preview_viewport.get_global_rect()
+		if vp_rect.has_point(event.position):
+			_preview_rotation += event.relative.x * 0.5
+			_preview_rotation = fmod(_preview_rotation, 360.0)
+			if _preview_rotation < 0.0:
+				_preview_rotation += 360.0
+			_apply_rotation()
 
 
 ## Apply the current rotation to the preview model.

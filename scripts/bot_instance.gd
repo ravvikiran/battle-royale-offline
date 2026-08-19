@@ -98,6 +98,9 @@ func initialize(bot_id: int, bot_difficulty: Enums.Difficulty) -> void:
 	health = 100.0
 	shield = 0.0
 	is_alive = true
+	
+	# Set initial reaction timer so bots don't all act immediately on first frame
+	reaction_timer = randf_range(0.0, reaction_time_ms)
 
 
 ## Context dictionary expected keys:

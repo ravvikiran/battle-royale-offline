@@ -148,9 +148,17 @@ func use_consumable(type: Enums.ConsumableType) -> Dictionary:
 	if count <= 0:
 		return {"success": false, "error": "no_item"}
 
-	# Check bandage cap restriction
+	# Check bandage cap restriction (bandages can't heal above 75)
 	if type == Enums.ConsumableType.BANDAGE and current_health >= 75.0:
 		return {"success": false, "error": "health_at_cap"}
+
+	# Check medkit restriction (already at full health)
+	if type == Enums.ConsumableType.MEDKIT and current_health >= 100.0:
+		return {"success": false, "error": "health_at_cap"}
+
+	# Check shield potion restriction (already at full shield)
+	if type == Enums.ConsumableType.SHIELD_POTION and current_shield >= 100.0:
+		return {"success": false, "error": "shield_at_cap"}
 
 	# Already healing
 	if is_healing:
