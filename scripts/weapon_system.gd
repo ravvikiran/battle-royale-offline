@@ -26,6 +26,10 @@ static func calculate_damage(weapon: WeaponData, distance: float) -> float:
 	# Apply rarity modifier to base damage
 	var modified_damage := apply_rarity_modifier(weapon.base_damage, weapon.rarity)
 
+	# Guard against zero effective range
+	if effective_range <= 0.0:
+		return modified_damage if distance <= 0.0 else 0.0
+
 	# No damage beyond 2× effective range
 	if distance > max_range:
 		return 0.0

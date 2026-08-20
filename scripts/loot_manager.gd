@@ -312,7 +312,7 @@ func _generate_open_area_spawn_points(map_data: MapData) -> void:
 	# Calculate number of open area spawn points
 	var open_spawn_count := int(open_density * open_area)
 	# Ensure at least some open area spawns
-	open_spawn_count = max(open_spawn_count, 10)
+	open_spawn_count = maxi(open_spawn_count, 10)
 
 	# Generate random positions in open areas
 	for i in range(open_spawn_count):

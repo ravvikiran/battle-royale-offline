@@ -106,7 +106,11 @@ func _move_bot(bot: BotInstance, delta: float) -> void:
 				bot.movement_direction = Vector2(cos(angle), sin(angle))
 			bot.position += bot.movement_direction * 5.0 * delta
 		Enums.BotState.HEALING:
-			pass  # Stay still while healing
+			# Stay still while healing — recover health over time
+			bot.heal(10.0 * delta)
+			# Return to roaming once health is above 70
+			if bot.health >= 70.0:
+				bot.state = Enums.BotState.ROAMING
 
 
 ## Resolves combat between bots that are in ENGAGING state.

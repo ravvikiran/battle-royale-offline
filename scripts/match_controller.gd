@@ -113,6 +113,8 @@ func start_match(settings: Dictionary) -> void:
 	# Spawn bots via BotAIManager
 	if bot_ai_manager == null:
 		bot_ai_manager = BotAIManager.new()
+		bot_ai_manager.name = "BotAIManager"
+		add_child(bot_ai_manager)
 		# Wire zone manager if available
 		if zone_manager != null:
 			bot_ai_manager.zone_manager = zone_manager
@@ -182,7 +184,7 @@ func register_elimination(victim_id: int, killer_id: int, weapon: String = "") -
 	if match_state != Enums.MatchState.ACTIVE:
 		return
 
-	alive_count -= 1
+	alive_count = maxi(alive_count - 1, 0)
 
 	# Track if the player was eliminated
 	if victim_id == PLAYER_ID:

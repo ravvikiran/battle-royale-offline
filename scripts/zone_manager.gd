@@ -95,8 +95,10 @@ func initialize_zones(map_bounds: Rect2, speed: Enums.ZoneShrinkSpeed) -> void:
 	# Load phase configuration from zone_phases.json
 	_load_phase_configs()
 	
-	# Ensure minimum 5 phases
-	assert(_phase_configs.size() >= 5, "Zone phases must have at least 5 phases")
+	# Ensure minimum 5 phases — generate defaults if config is insufficient
+	if _phase_configs.size() < 5:
+		push_warning("Zone phases config has fewer than 5 phases, using defaults.")
+		_generate_default_phases()
 	total_phases = _phase_configs.size()
 	
 	# Generate zone circles for all phases
@@ -216,10 +218,8 @@ func _update_shrinking(delta: float) -> void:
 	_shrink_timer -= delta
 	
 	if _shrink_timer <= 0.0:
-		# Shrinking complete
+		# Shrinking complete — advance_phase() will finalize position
 		_shrink_timer = 0.0
-		current_center = next_center
-		current_radius = next_radius
 		advance_phase()
 	else:
 		# Interpolate between start and target

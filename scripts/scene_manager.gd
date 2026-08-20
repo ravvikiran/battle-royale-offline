@@ -77,7 +77,13 @@ func goto_scene(scene_path: String) -> void:
 
 
 func _deferred_goto_scene(scene_path: String) -> void:
-	get_tree().change_scene_to_file(scene_path)
+	if not ResourceLoader.exists(scene_path):
+		push_error("SceneManager: Scene not found: %s" % scene_path)
+		return
+	var err := get_tree().change_scene_to_file(scene_path)
+	if err != OK:
+		push_error("SceneManager: Failed to change scene to: %s (error %d)" % [scene_path, err])
+		return
 	# Connect on next frame — scene will be loaded by then
 	if not get_tree().process_frame.is_connected(_on_scene_loaded):
 		get_tree().process_frame.connect(_on_scene_loaded, CONNECT_ONE_SHOT)
@@ -124,6 +130,7 @@ func _on_main_menu_settings() -> void:
 # --- Character Selector ---
 
 func _connect_character_selector(selector: CharacterSelector) -> void:
+	selector.set_progress_store(progress_store)
 	if not selector.character_confirmed.is_connected(_on_character_confirmed):
 		selector.character_confirmed.connect(_on_character_confirmed)
 	if not selector.back_pressed.is_connected(_on_character_selector_back):

@@ -1,6 +1,7 @@
 ## Plug-and-play asset loading system.
 ## Loads models, audio, textures, and VFX from res://assets/ with caching.
 ## Returns null when an asset doesn't exist so callers can fall back to placeholders.
+## Cache is unbounded by design — the game has a finite, small asset set.
 extends Node
 
 var _cache: Dictionary = {}

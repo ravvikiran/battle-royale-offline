@@ -268,7 +268,7 @@ func _on_load_timeout() -> void:
 
 
 ## Handle 360-degree rotation via input.
-func _input(event: InputEvent) -> void:
+func _unhandled_input(event: InputEvent) -> void:
 	if not _model_loaded:
 		return
 

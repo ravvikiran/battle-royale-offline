@@ -139,11 +139,23 @@ func decide_action(context: Dictionary) -> Enums.BotState:
 	# Priority 3: Enemy in range, health > 50%, armed → ENGAGING
 	if enemy_in_range and health > 50.0 and has_weapon:
 		state = Enums.BotState.ENGAGING
+		# Set movement direction toward the enemy
+		var enemy_pos: Vector2 = context.get("enemy_position", Vector2.ZERO)
+		if enemy_pos != Vector2.ZERO or position != Vector2.ZERO:
+			var dir := (enemy_pos - position)
+			if dir.length() > 0.0:
+				movement_direction = dir.normalized()
 		return state
 	
 	# Priority 4: Enemy in range, health ≤ 50% or unarmed → FLEEING
 	if enemy_in_range and (health <= 50.0 or not has_weapon):
 		state = Enums.BotState.FLEEING
+		# Flee away from the enemy
+		var enemy_pos: Vector2 = context.get("enemy_position", Vector2.ZERO)
+		if enemy_pos != Vector2.ZERO or position != Vector2.ZERO:
+			var dir := (position - enemy_pos)
+			if dir.length() > 0.0:
+				movement_direction = dir.normalized()
 		return state
 	
 	# Priority 5: Health < 30% → disengage, heal if possible
@@ -184,6 +196,9 @@ func take_damage(amount: float) -> void:
 	if not is_alive:
 		return
 	
+	# Mark as under fire for AI decision making
+	is_under_fire = true
+	
 	var remaining := amount
 	if shield > 0.0:
 		var shield_damage := minf(remaining, shield)
@@ -204,9 +219,12 @@ func heal(amount: float) -> void:
 
 
 ## Returns whether the bot's reaction timer has elapsed (ready to act).
+## Also clears the is_under_fire flag after a decision cycle so it doesn't persist forever.
 func is_reaction_ready(delta: float) -> bool:
 	reaction_timer -= delta * 1000.0  # Convert to ms
 	if reaction_timer <= 0.0:
 		reaction_timer = reaction_time_ms
+		# Clear under-fire flag after processing a decision cycle
+		is_under_fire = false
 		return true
 	return false

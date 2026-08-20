@@ -38,12 +38,12 @@ static func from_dict(data: Dictionary, weapon_rarity: Enums.RarityTier = Enums.
 	weapon.category = _parse_category(data.get("category", "AR"))
 	weapon.name = data.get("name", "Unknown")
 	weapon.rarity = weapon_rarity
-	weapon.base_damage = float(data.get("base_damage", 0))
-	weapon.fire_rate = float(data.get("fire_rate_rps", 1))
-	weapon.magazine_size = int(data.get("magazine_size", 1))
-	weapon.reload_time = float(data.get("reload_time_seconds", 1.0))
-	weapon.effective_range = float(data.get("effective_range_meters", 10))
-	weapon.accuracy_base = float(data.get("base_accuracy", 0.5))
+	weapon.base_damage = maxf(float(data.get("base_damage", 0)), 0.0)
+	weapon.fire_rate = maxf(float(data.get("fire_rate_rps", 1)), 0.1)
+	weapon.magazine_size = maxi(int(data.get("magazine_size", 1)), 1)
+	weapon.reload_time = maxf(float(data.get("reload_time_seconds", 1.0)), 0.1)
+	weapon.effective_range = maxf(float(data.get("effective_range_meters", 10)), 1.0)
+	weapon.accuracy_base = clampf(float(data.get("base_accuracy", 0.5)), 0.0, 1.0)
 	return weapon
 
 

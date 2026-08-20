@@ -192,7 +192,7 @@ func complete_healing() -> Dictionary:
 	match type:
 		Enums.ConsumableType.BANDAGE:
 			var old_health := current_health
-			current_health = min(current_health + heal_amount, heal_cap)
+			current_health = minf(current_health + heal_amount, heal_cap)
 			result["healed"] = current_health - old_health
 			result["target"] = "health"
 		Enums.ConsumableType.MEDKIT:
@@ -202,7 +202,7 @@ func complete_healing() -> Dictionary:
 			result["target"] = "health"
 		Enums.ConsumableType.SHIELD_POTION:
 			var old_shield := current_shield
-			current_shield = min(current_shield + heal_amount, heal_cap)
+			current_shield = minf(current_shield + heal_amount, heal_cap)
 			result["healed"] = current_shield - old_shield
 			result["target"] = "shield"
 

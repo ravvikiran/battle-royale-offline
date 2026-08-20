@@ -87,7 +87,7 @@ var _hud_center_message: Label = null
 ## Visual representations of bots on the map
 var _bot_visuals: Dictionary = {}  # bot.id -> Node3D
 
-## Player visual representation
+## Player visual representation (MeshInstance3D for placeholder, or loaded model Node3D)
 var _player_visual: Node3D = null
 
 ## Camera following the player
@@ -364,7 +364,8 @@ func _process_storm_damage(delta: float) -> void:
 
 			# Show storm indicator on HUD
 			var safe_point := zone_manager.get_nearest_safe_point(player_position)
-			var direction := (safe_point - player_position).normalized()
+			var diff := safe_point - player_position
+			var direction := diff.normalized() if diff.length() > 0.01 else Vector2.UP
 			hud_manager.show_storm_indicator(direction)
 	else:
 		_storm_damage_timer = 0.0
@@ -443,18 +444,19 @@ func _setup_player_visual() -> void:
 		return
 
 	# Fallback: blue capsule placeholder
-	_player_visual = MeshInstance3D.new()
+	var mesh_inst := MeshInstance3D.new()
 	var capsule := CapsuleMesh.new()
 	capsule.radius = 1.5
 	capsule.height = 4.0
-	_player_visual.mesh = capsule
+	mesh_inst.mesh = capsule
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = Color(0.0, 0.5, 1.0)
 	mat.emission_enabled = true
 	mat.emission = Color(0.0, 0.3, 0.8)
 	mat.emission_energy_multiplier = 0.5
-	_player_visual.material_override = mat
-	_player_visual.position = Vector3(player_position.x, 3.0, player_position.y)
+	mesh_inst.material_override = mat
+	mesh_inst.position = Vector3(player_position.x, 3.0, player_position.y)
+	_player_visual = mesh_inst
 	add_child(_player_visual)
 
 
@@ -836,14 +838,26 @@ func attempt_loot_pickup() -> void:
 func use_consumable(type: Enums.ConsumableType) -> Dictionary:
 	var result := inventory_system.use_consumable(type)
 	if result.get("success", false):
-		# Healing started — in a full implementation, a timer would complete it
-		# For now, immediately complete healing (simplified)
-		var heal_result := inventory_system.complete_healing()
-		if heal_result.get("success", false):
-			player_health = inventory_system.current_health
-			player_shield = inventory_system.current_shield
-			hud_manager.update_health(player_health, player_shield)
+		# Healing started — use a timer to delay completion by use_time
+		var use_time: float = result.get("use_time", 3.0)
+		get_tree().create_timer(use_time).timeout.connect(_on_healing_complete)
 	return result
+
+
+## Called when the healing timer finishes, applying the heal effect.
+func _on_healing_complete() -> void:
+	# Guard: don't heal if match ended or player is dead
+	if match_controller.match_state != Enums.MatchState.ACTIVE:
+		inventory_system.cancel_healing()
+		return
+	if player_health <= 0.0:
+		inventory_system.cancel_healing()
+		return
+	var heal_result := inventory_system.complete_healing()
+	if heal_result.get("success", false):
+		player_health = inventory_system.current_health
+		player_shield = inventory_system.current_shield
+		hud_manager.update_health(player_health, player_shield)
 
 
 # --- Progress Persistence ---
