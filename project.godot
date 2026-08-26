@@ -20,6 +20,7 @@ config/features=PackedStringArray("4.6", "Mobile")
 
 SceneManager="*res://scripts/scene_manager.gd"
 AssetLoader="*res://scripts/asset_loader.gd"
+GameSystems="*res://scripts/game_systems_hub.gd"
 
 [display]
 

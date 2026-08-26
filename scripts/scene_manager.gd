@@ -13,6 +13,7 @@ const SCENE_VICTORY := "res://scenes/victory_screen.tscn"
 const SCENE_DEFEAT := "res://scenes/defeat_screen.tscn"
 const SCENE_CAREER_STATS := "res://scenes/career_stats.tscn"
 const SCENE_SETTINGS := "res://scenes/settings.tscn"
+const SCENE_MATCH_HISTORY := "res://scenes/match_history.tscn"
 
 
 ## Shared state between scenes
@@ -68,6 +69,8 @@ func _connect_current_scene() -> void:
 		_connect_career_stats(current_scene)
 	elif current_scene is SettingsMenu:
 		_connect_settings_menu(current_scene)
+	elif current_scene is MatchHistoryScreen:
+		_connect_match_history(current_scene)
 
 
 ## Navigate to a scene by path and connect its signals after loading.
@@ -109,6 +112,20 @@ func _connect_main_menu(menu: MainMenu) -> void:
 		menu.career_stats_pressed.connect(_on_main_menu_career_stats)
 	if not menu.settings_pressed.is_connected(_on_main_menu_settings):
 		menu.settings_pressed.connect(_on_main_menu_settings)
+
+	# v0.2.0: Connect enhanced menu signals if available
+	if menu is MainMenuEnhanced:
+		var enhanced: MainMenuEnhanced = menu as MainMenuEnhanced
+		if not enhanced.match_history_pressed.is_connected(_on_main_menu_match_history):
+			enhanced.match_history_pressed.connect(_on_main_menu_match_history)
+		# Inject new systems
+		var game_sys: Node = get_node_or_null("/root/GameSystems")
+		if game_sys is GameSystemsHub:
+			var hub: GameSystemsHub = game_sys as GameSystemsHub
+			enhanced.set_new_systems(
+				hub.xp_manager, hub.daily_challenges, hub.battle_pass,
+				hub.achievements_manager, hub.daily_login, hub.adaptive_difficulty
+			)
 
 
 func _on_main_menu_play() -> void:
@@ -195,6 +212,12 @@ func _connect_game_orchestrator(orchestrator: GameOrchestrator) -> void:
 
 func _on_match_results_ready(result: Dictionary) -> void:
 	last_match_result = result
+
+	# v0.2.0: Process match results through GameSystemsHub
+	var game_sys: Node = get_node_or_null("/root/GameSystems")
+	if game_sys is GameSystemsHub:
+		(game_sys as GameSystemsHub).on_match_end(result)
+
 	var placement: int = result.get("placement", 0)
 	if placement == 1:
 		goto_scene(SCENE_VICTORY)
@@ -234,6 +257,12 @@ func _connect_settings_menu(settings_screen: SettingsMenu) -> void:
 		settings_screen.back_pressed.connect(_on_settings_back)
 
 
+func _connect_match_history(screen: MatchHistoryScreen) -> void:
+	screen.set_progress_store(progress_store)
+	if not screen.back_pressed.is_connected(_on_match_history_back):
+		screen.back_pressed.connect(_on_match_history_back)
+
+
 func _on_return_to_menu() -> void:
 	goto_scene(SCENE_MAIN_MENU)
 
@@ -265,3 +294,14 @@ func go_to_main_menu() -> void:
 
 func get_last_match_result() -> Dictionary:
 	return last_match_result
+
+
+# --- v0.2.0: New navigation handlers ---
+
+
+func _on_main_menu_match_history() -> void:
+	goto_scene(SCENE_MATCH_HISTORY)
+
+
+func _on_match_history_back() -> void:
+	goto_scene(SCENE_MAIN_MENU)

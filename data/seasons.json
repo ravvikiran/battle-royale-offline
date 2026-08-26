@@ -1,0 +1,73 @@
+{
+  "seasons": [
+    {
+      "id": "SEASON_1",
+      "name": "First Drop",
+      "description": "The inaugural season. Prove yourself on the battlefield and climb the ranks.",
+      "theme_color": "#3399FF",
+      "start_date": "2026-01-01",
+      "end_date": "2026-03-31",
+      "max_tier": 50,
+      "featured_reward": "Phantom Celestial Skin"
+    },
+    {
+      "id": "SEASON_2",
+      "name": "Storm Rising",
+      "description": "The storm grows stronger. Adapt or be eliminated.",
+      "theme_color": "#9933CC",
+      "start_date": "2026-04-01",
+      "end_date": "2026-06-30",
+      "max_tier": 50,
+      "featured_reward": "Storm Rider Skin"
+    },
+    {
+      "id": "SEASON_3",
+      "name": "Neon Nights",
+      "description": "The battlefield lights up. New weapons, new dangers, new glory.",
+      "theme_color": "#00FFCC",
+      "start_date": "2026-07-01",
+      "end_date": "2026-09-30",
+      "max_tier": 50,
+      "featured_reward": "Neon Phantom Skin"
+    },
+    {
+      "id": "SEASON_4",
+      "name": "Final Stand",
+      "description": "The ultimate challenge awaits. Only legends survive.",
+      "theme_color": "#FF4D1A",
+      "start_date": "2026-10-01",
+      "end_date": "2026-12-31",
+      "max_tier": 50,
+      "featured_reward": "Inferno Titan Skin"
+    }
+  ],
+  "daily_login_rewards": {
+    "cycle_length": 7,
+    "base_rewards": [
+      {"day": 1, "type": "XP", "amount": 50},
+      {"day": 2, "type": "XP", "amount": 75},
+      {"day": 3, "type": "XP", "amount": 100},
+      {"day": 4, "type": "XP", "amount": 150},
+      {"day": 5, "type": "XP", "amount": 200},
+      {"day": 6, "type": "XP", "amount": 300},
+      {"day": 7, "type": "XP", "amount": 500}
+    ],
+    "cycle_multiplier_increment": 0.25,
+    "max_multiplier": 3.0
+  },
+  "xp_table": {
+    "base_xp": 100,
+    "growth_factor": 1.15,
+    "max_level": 200,
+    "milestone_levels": [10, 25, 50, 75, 100, 150, 200]
+  },
+  "titles": [
+    {"level": 1, "title": "Rookie", "color": "#AAAAAA"},
+    {"level": 10, "title": "Survivor", "color": "#4CAF50"},
+    {"level": 25, "title": "Warrior", "color": "#2196F3"},
+    {"level": 50, "title": "Veteran", "color": "#9C27B0"},
+    {"level": 75, "title": "Champion", "color": "#FF9800"},
+    {"level": 100, "title": "Legend", "color": "#FFD700"},
+    {"level": 150, "title": "Apex Predator", "color": "#FF1744"}
+  ]
+}

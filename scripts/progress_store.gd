@@ -486,3 +486,87 @@ func _get_default_settings() -> Dictionary:
 		"voice_volume": 80,
 		"control_layout": ""
 	}
+
+
+# ============================
+# v0.2.0 EXTENSION METHODS
+# ============================
+# These methods support the new game systems (XP, achievements, challenges, battle pass).
+# Data is stored under _data["extensions"][user_id][system_key].
+
+
+## Gets XP/leveling data
+func get_xp_data() -> Dictionary:
+	return _get_ext("xp", {"level": 1, "current_xp": 0, "total_xp": 0, "title": 0})
+
+
+## Saves XP/leveling data
+func save_xp_data(data: Dictionary) -> void:
+	_set_ext("xp", data)
+
+
+## Gets achievements data
+func get_achievements_data() -> Dictionary:
+	return _get_ext("achievements", {"unlocked": [], "progress": {}})
+
+
+## Saves achievements data
+func save_achievements_data(data: Dictionary) -> void:
+	_set_ext("achievements", data)
+
+
+## Gets daily challenges data
+func get_challenges_data() -> Dictionary:
+	return _get_ext("challenges", {
+		"last_daily_date": "",
+		"last_weekly_week": -1,
+		"daily_challenges": [],
+		"weekly_challenge": {},
+		"progress": {},
+		"login_streak": 0,
+		"last_login_date": ""
+	})
+
+
+## Saves daily challenges data
+func save_challenges_data(data: Dictionary) -> void:
+	_set_ext("challenges", data)
+
+
+## Gets battle pass data
+func get_battle_pass_data() -> Dictionary:
+	return _get_ext("battle_pass", {
+		"season": 0,
+		"tier": 0,
+		"tier_xp": 0,
+		"total_xp": 0,
+		"is_premium": false,
+		"claimed_free": [],
+		"claimed_premium": []
+	})
+
+
+## Saves battle pass data
+func save_battle_pass_data(data: Dictionary) -> void:
+	_set_ext("battle_pass", data)
+
+
+## Internal helper: Gets extension data for the current user
+func _get_ext(key: String, default: Dictionary) -> Dictionary:
+	if current_user_id.is_empty():
+		return default
+	var extensions: Dictionary = _data.get("extensions", {})
+	var user_ext: Dictionary = extensions.get(current_user_id, {})
+	return user_ext.get(key, default)
+
+
+## Internal helper: Sets extension data for the current user
+func _set_ext(key: String, data: Dictionary) -> void:
+	if current_user_id.is_empty():
+		return
+	if not _data.has("extensions"):
+		_data["extensions"] = {}
+	if not _data["extensions"].has(current_user_id):
+		_data["extensions"][current_user_id] = {}
+	_data["extensions"][current_user_id][key] = data
+	_save_data()

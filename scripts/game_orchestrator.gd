@@ -219,6 +219,11 @@ func start_match_from_lobby(character_id: String, variant: String, settings: Dic
 	player_character_variant = variant
 	current_match_settings = settings
 
+	# v0.2.0: Notify GameSystemsHub of match start
+	var game_sys: Node = get_node_or_null("/root/GameSystems")
+	if game_sys is GameSystemsHub:
+		(game_sys as GameSystemsHub).on_match_start(settings)
+
 	# Set up player visual with correct character
 	_setup_player_visual()
 
@@ -343,6 +348,18 @@ func _process_active_gameplay(delta: float) -> void:
 	# --- HUD Updates ---
 	_update_hud()
 
+	# --- v0.2.0: GameSystemsHub per-frame update ---
+	var game_sys: Node = get_node_or_null("/root/GameSystems")
+	if game_sys is GameSystemsHub:
+		(game_sys as GameSystemsHub).on_match_update(
+			delta,
+			match_controller.match_stats.get("kills", 0),
+			match_controller.match_stats.get("damage_dealt", 0.0),
+			match_controller.elapsed_time,
+			match_controller.alive_count,
+			match_controller.total_participants - 1
+		)
+
 	# --- Audio: Footsteps ---
 	_process_footstep_audio(delta)
 
@@ -367,6 +384,11 @@ func _process_storm_damage(delta: float) -> void:
 			var diff := safe_point - player_position
 			var direction := diff.normalized() if diff.length() > 0.01 else Vector2.UP
 			hud_manager.show_storm_indicator(direction)
+
+		# v0.2.0: Track storm time for challenges/achievements
+		var game_sys: Node = get_node_or_null("/root/GameSystems")
+		if game_sys is GameSystemsHub:
+			(game_sys as GameSystemsHub).on_storm_damage_tick(delta)
 	else:
 		_storm_damage_timer = 0.0
 		hud_manager.hide_storm_indicator()
@@ -389,6 +411,13 @@ func _apply_damage_to_player(amount: float) -> void:
 
 	# Update HUD
 	hud_manager.update_health(player_health, player_shield)
+
+	# v0.2.0: Notify combat feedback for screen effects
+	var game_sys: Node = get_node_or_null("/root/GameSystems")
+	if game_sys is GameSystemsHub:
+		var hub: GameSystemsHub = game_sys as GameSystemsHub
+		hub.on_player_damaged(amount, Vector2.ZERO)
+		hub.on_health_changed(player_health, player_shield)
 
 	# Check if player is eliminated
 	if player_health <= 0.0:
@@ -536,6 +565,12 @@ func _handle_pc_input(delta: float) -> void:
 	if _game_camera != null:
 		_game_camera.position = Vector3(player_position.x, CAMERA_HEIGHT, player_position.y + 25.0)
 		_game_camera.rotation_degrees = Vector3(CAMERA_ANGLE, 0, 0)
+		# v0.2.0: Apply screen shake from combat feedback
+		var game_sys: Node = get_node_or_null("/root/GameSystems")
+		if game_sys is GameSystemsHub:
+			var shake: Vector2 = (game_sys as GameSystemsHub).get_camera_shake_offset()
+			_game_camera.position.x += shake.x
+			_game_camera.position.z += shake.y
 
 	# Shoot with spacebar (left mouse handled in _unhandled_input to avoid conflicts)
 	if Input.is_action_just_pressed("ui_accept"):
@@ -574,7 +609,21 @@ func _update_hud_labels() -> void:
 			_hud_center_message.text = "Fight!"
 			_hud_center_message.visible = true
 		else:
-			_hud_center_message.visible = false
+			# v0.2.0: Show kill streak announcement if active
+			var game_sys: Node = get_node_or_null("/root/GameSystems")
+			if game_sys is GameSystemsHub:
+				var hub: GameSystemsHub = game_sys as GameSystemsHub
+				if hub.is_hit_marker_visible() and hub.is_hit_marker_kill():
+					var streak_text: String = hub.combat_feedback.get_streak_announcement()
+					if not streak_text.is_empty():
+						_hud_center_message.text = streak_text
+						_hud_center_message.visible = true
+					else:
+						_hud_center_message.visible = false
+				else:
+					_hud_center_message.visible = false
+			else:
+				_hud_center_message.visible = false
 
 
 ## Processes footstep audio based on player movement.
@@ -797,9 +846,19 @@ func _attempt_player_shot(weapon: WeaponData) -> void:
 	# Record player damage dealt
 	match_controller.record_player_damage(damage)
 
+	# v0.2.0: Notify GameSystemsHub of hit
+	var game_sys: Node = get_node_or_null("/root/GameSystems")
+	if game_sys is GameSystemsHub:
+		var hub: GameSystemsHub = game_sys as GameSystemsHub
+		hub.on_player_hit(damage, best_target.position)
+
 	# Check if bot is eliminated
 	if not best_target.is_alive:
 		match_controller.register_elimination(best_target.id, MatchController.PLAYER_ID, weapon.name)
+		# v0.2.0: Notify kill
+		if game_sys is GameSystemsHub:
+			var hub2: GameSystemsHub = game_sys as GameSystemsHub
+			hub2.on_player_kill("Bot_%d" % best_target.id, weapon.name, weapon.category, damage)
 
 
 # --- Loot Pickup ---
@@ -829,6 +888,11 @@ func attempt_loot_pickup() -> void:
 		# Remove loot glow from map
 		if game_map != null:
 			game_map.remove_loot_glow(nearest_loot.id)
+
+		# v0.2.0: Track loot pickup for challenges
+		var game_sys: Node = get_node_or_null("/root/GameSystems")
+		if game_sys is GameSystemsHub:
+			(game_sys as GameSystemsHub).on_item_looted()
 
 
 # --- Consumable Usage ---
