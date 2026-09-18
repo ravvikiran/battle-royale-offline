@@ -114,6 +114,22 @@ func _initialize_all_systems() -> void:
 	notification_manager.name = "NotificationManager"
 	add_child(notification_manager)
 
+	# Surface previously-silent storage states. ProgressStore emits these on
+	# save failure and on data recovery, but nothing was listening — so the
+	# player never knew. Route them to human, visible toasts.
+	if _progress_store != null:
+		if not _progress_store.save_failed_notification.is_connected(_on_store_save_failed):
+			_progress_store.save_failed_notification.connect(_on_store_save_failed)
+		if not _progress_store.data_recovery_notification.is_connected(_on_store_data_recovery):
+			_progress_store.data_recovery_notification.connect(_on_store_data_recovery)
+		# The store may have recovered during SceneManager._ready() — before this
+		# hub existed to hear the signal. Surface that missed event once, now.
+		if _progress_store.has_method("consume_recovery_flag") and _progress_store.consume_recovery_flag():
+			_on_store_data_recovery("")
+		# Likewise, if a prior save is still unflushed, let the player know.
+		if not _progress_store.unsaved_results.is_empty():
+			_on_store_save_failed("")
+
 	# Check first match of day
 	_check_first_match_of_day()
 
@@ -298,6 +314,28 @@ func _on_login_reward_claimed(_day: int, reward: Dictionary) -> void:
 	notification_manager.show_toast(
 		"Daily Reward: %s" % reward.get("name", "Reward"),
 		reward.get("description", "")
+	)
+
+
+## Storage save failed — reassure the player their progress isn't lost and that
+## the game will retry, rather than failing silently.
+func _on_store_save_failed(_message: String) -> void:
+	if notification_manager == null:
+		return
+	notification_manager.show_toast(
+		"Couldn't save just now",
+		"Your progress is safe and will be saved automatically on the next match."
+	)
+
+
+## Data recovery — the save file was unreadable and was reset. Tell the player
+## plainly what happened so a sudden stats reset isn't mysterious.
+func _on_store_data_recovery(_message: String) -> void:
+	if notification_manager == null:
+		return
+	notification_manager.show_toast(
+		"Progress reset",
+		"Your saved data couldn't be read, so we started fresh. New matches will save normally."
 	)
 
 

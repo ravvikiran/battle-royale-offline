@@ -124,13 +124,13 @@ func _build_ui() -> void:
 
 	_toast_label = Label.new()
 	_toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_toast_label.add_theme_font_size_override("font_size", 20)
+	_toast_label.add_theme_font_size_override("font_size", UITheme.FONT_SUBHEADING)
 	toast_vbox.add_child(_toast_label)
 
 	_toast_subtitle = Label.new()
 	_toast_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_toast_subtitle.add_theme_font_size_override("font_size", 14)
-	_toast_subtitle.modulate = Color(0.8, 0.8, 0.8)
+	_toast_subtitle.add_theme_font_size_override("font_size", UITheme.FONT_CAPTION)
+	_toast_subtitle.modulate = UITheme.TEXT_SECONDARY
 	toast_vbox.add_child(_toast_subtitle)
 
 	# Streak announcement (center screen, large text)
@@ -139,8 +139,8 @@ func _build_ui() -> void:
 	_streak_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_streak_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_streak_label.set_anchors_preset(Control.PRESET_CENTER)
-	_streak_label.add_theme_font_size_override("font_size", 48)
-	_streak_label.modulate = Color(1.0, 0.8, 0.0)
+	_streak_label.add_theme_font_size_override("font_size", UITheme.FONT_DISPLAY)
+	_streak_label.modulate = UITheme.GOLD
 	add_child(_streak_label)
 
 	# Banner stack (left side, for persistent indicators)
@@ -171,7 +171,7 @@ func show_achievement_unlock(achievement_data: Dictionary) -> void:
 		"title": title,
 		"subtitle": "%s (+%d XP)" % [name, xp],
 		"duration": DURATIONS["achievement"],
-		"color": Color(1.0, 0.84, 0.0)
+		"color": UITheme.GOLD
 	})
 
 
@@ -185,7 +185,7 @@ func show_level_up(new_level: int, rewards: Array) -> void:
 		"title": "LEVEL UP!",
 		"subtitle": "Level %d%s" % [new_level, reward_text],
 		"duration": DURATIONS["level_up"],
-		"color": Color(0.3, 0.8, 1.0)
+		"color": UITheme.ACCENT
 	})
 
 
@@ -197,7 +197,7 @@ func show_challenge_complete(challenge: Dictionary) -> void:
 		"title": "Challenge Complete!",
 		"subtitle": "%s (+%d XP)" % [challenge.get("description", ""), xp],
 		"duration": DURATIONS["challenge"],
-		"color": Color(0.2, 1.0, 0.4)
+		"color": UITheme.SUCCESS
 	})
 
 
@@ -208,7 +208,7 @@ func show_streak_announcement(streak_text: String, kill_count: int) -> void:
 		"title": streak_text,
 		"subtitle": "%d Kills" % kill_count,
 		"duration": DURATIONS["streak"],
-		"color": Color(1.0, 0.4, 0.1)
+		"color": UITheme.WARNING
 	})
 
 
@@ -219,7 +219,7 @@ func show_xp_gain(amount: int, source_text: String) -> void:
 		"title": "+%d XP" % amount,
 		"subtitle": source_text,
 		"duration": DURATIONS["xp_gain"],
-		"color": Color(0.6, 0.4, 1.0)
+		"color": UITheme.ACCENT_XP
 	})
 
 
@@ -233,7 +233,7 @@ func show_battle_pass_tier(tier: int, rewards: Array) -> void:
 		"title": "Season Tier %d!" % tier,
 		"subtitle": ", ".join(reward_names) if reward_names.size() > 0 else "New tier reached",
 		"duration": DURATIONS["battle_pass"],
-		"color": Color(0.0, 1.0, 0.8)
+		"color": UITheme.ACCENT_TEAL
 	})
 
 
@@ -244,7 +244,7 @@ func show_hot_drop(zone_name: String) -> void:
 		"title": zone_name,
 		"subtitle": "High risk, high reward!",
 		"duration": DURATIONS["hot_drop"],
-		"color": Color(1.0, 0.3, 0.1)
+		"color": UITheme.DANGER
 	})
 
 
@@ -312,7 +312,7 @@ func _update_animation() -> void:
 		var color: Color = _current_notification.get("color", Color(1.0, 0.8, 0.0))
 		_streak_label.modulate = Color(color.r, color.g, color.b, alpha)
 		# Scale effect via font size (crude but effective in Godot UI)
-		var base_size: int = 48
+		var base_size: int = UITheme.FONT_DISPLAY
 		var scale_bonus: int = int((1.0 - _anim_progress) * 20.0) if _anim_state == "slide_in" else 0
 		_streak_label.add_theme_font_size_override("font_size", base_size + scale_bonus)
 	else:

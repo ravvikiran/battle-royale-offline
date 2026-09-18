@@ -126,6 +126,10 @@ func _setup_ui() -> void:
 	settings_button.pressed.connect(_on_settings_pressed)
 	login_button.pressed.connect(_on_login_pressed)
 
+	# Land keyboard/controller focus on the primary action so the focus ring is
+	# immediately visible and the menu is operable without a pointer.
+	play_button.grab_focus.call_deferred()
+
 
 ## Load the character to display from persisted selection.
 ## Defaults to Blitz male if no previous selection exists (Requirement 14.2).
@@ -200,6 +204,12 @@ func _on_play_pressed() -> void:
 	if _transitioning:
 		return
 	_transitioning = true
+	# Instant (<100ms) tap acknowledgement: pop the button and show a pending
+	# label so the press is confirmed immediately, even though the transition
+	# may take up to a few frames to kick in.
+	Motion.press_pop(play_button)
+	play_button.text = "LOADING…"
+	play_button.disabled = true
 	_transition_timer.start()
 	play_pressed.emit()
 
@@ -209,22 +219,27 @@ func _on_characters_pressed() -> void:
 	if _transitioning:
 		return
 	_transitioning = true
+	Motion.press_pop(characters_button)
+	characters_button.disabled = true
 	_transition_timer.start()
 	characters_pressed.emit()
 
 
 ## Called when Career Stats button is pressed.
 func _on_career_stats_pressed() -> void:
+	Motion.press_pop(career_stats_button)
 	career_stats_pressed.emit()
 
 
 ## Called when Settings button is pressed.
 func _on_settings_pressed() -> void:
+	Motion.press_pop(settings_button)
 	settings_pressed.emit()
 
 
 ## Called when Login button is pressed.
 func _on_login_pressed() -> void:
+	Motion.press_pop(login_button)
 	login_pressed.emit()
 
 
@@ -232,12 +247,24 @@ func _on_login_pressed() -> void:
 ## Resets the transitioning flag to allow interaction again.
 func _on_transition_timeout() -> void:
 	_transitioning = false
+	_restore_nav_buttons()
 
 
 ## Reset the transition state (called after scene change completes).
 func reset_transition() -> void:
 	_transitioning = false
 	_transition_timer.stop()
+	_restore_nav_buttons()
+
+
+## Restores nav buttons to their resting state after a (possibly cancelled)
+## transition, so the pending "LOADING…" label and disabled state don't stick.
+func _restore_nav_buttons() -> void:
+	if play_button != null:
+		play_button.text = "PLAY"
+		play_button.disabled = false
+	if characters_button != null:
+		characters_button.disabled = false
 
 
 ## Refresh the displayed character model (e.g., after returning from Character Selector).

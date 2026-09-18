@@ -26,8 +26,17 @@ var last_match_result: Dictionary = {}
 var progress_store: ProgressStore = null
 var auth_manager: AuthManager = null
 
+## Fade-transition overlay (a full-screen ColorRect on a top CanvasLayer).
+## Owned by SceneManager so every navigation can fade out→swap→fade in,
+## turning hard scene cuts into a smooth transition. No-op under reduced motion.
+var _transition_layer: CanvasLayer = null
+var _transition_rect: ColorRect = null
+
 
 func _ready() -> void:
+	# Build the transition overlay before anything else navigates.
+	_setup_transition_overlay()
+
 	# Initialize persistence systems
 	auth_manager = AuthManager.new()
 	progress_store = ProgressStore.new()
@@ -73,6 +82,21 @@ func _connect_current_scene() -> void:
 		_connect_match_history(current_scene)
 
 
+## Creates the full-screen fade overlay on a high-layer CanvasLayer.
+## Starts fully transparent and ignores mouse input except during a transition.
+func _setup_transition_overlay() -> void:
+	_transition_layer = CanvasLayer.new()
+	_transition_layer.layer = 128  # Above all gameplay/UI layers.
+	add_child(_transition_layer)
+
+	_transition_rect = ColorRect.new()
+	_transition_rect.color = UITheme.SURFACE_BG
+	_transition_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_transition_rect.modulate.a = 0.0
+	_transition_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE  # Transparent to input when idle.
+	_transition_layer.add_child(_transition_rect)
+
+
 ## Navigate to a scene by path and connect its signals after loading.
 func goto_scene(scene_path: String) -> void:
 	# Use call_deferred to avoid issues during signal processing
@@ -83,9 +107,18 @@ func _deferred_goto_scene(scene_path: String) -> void:
 	if not ResourceLoader.exists(scene_path):
 		push_error("SceneManager: Scene not found: %s" % scene_path)
 		return
+
+	# Fade to cover (instant under reduced motion), then swap, then fade back in.
+	# Block input during the covered window so double-taps can't queue two swaps.
+	if _transition_rect != null:
+		_transition_rect.mouse_filter = Control.MOUSE_FILTER_STOP
+		await Motion.fade_and_wait(_transition_rect, _transition_rect.modulate.a, 1.0, UITheme.DUR_FAST)
+
 	var err := get_tree().change_scene_to_file(scene_path)
 	if err != OK:
 		push_error("SceneManager: Failed to change scene to: %s (error %d)" % [scene_path, err])
+		# Recover: lift the cover so the user isn't stuck on a blank screen.
+		_reveal_after_transition()
 		return
 	# Connect on next frame — scene will be loaded by then
 	if not get_tree().process_frame.is_connected(_on_scene_loaded):
@@ -96,6 +129,16 @@ func _on_scene_loaded() -> void:
 	# Extra frame delay to ensure _ready() has been called on the new scene
 	if not get_tree().process_frame.is_connected(_connect_current_scene):
 		get_tree().process_frame.connect(_connect_current_scene, CONNECT_ONE_SHOT)
+	# Once the new scene is up, fade the cover back out to reveal it.
+	_reveal_after_transition()
+
+
+## Fades the transition cover back to transparent and restores input pass-through.
+func _reveal_after_transition() -> void:
+	if _transition_rect == null:
+		return
+	Motion.fade(_transition_rect, _transition_rect.modulate.a, 0.0, UITheme.DUR_BASE)
+	_transition_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 # --- Main Menu ---
@@ -248,6 +291,8 @@ func _connect_career_stats(stats_screen: CareerStats) -> void:
 	stats_screen.set_progress_store(progress_store)
 	if not stats_screen.back_pressed.is_connected(_on_career_stats_back):
 		stats_screen.back_pressed.connect(_on_career_stats_back)
+	if not stats_screen.play_pressed.is_connected(_on_main_menu_play):
+		stats_screen.play_pressed.connect(_on_main_menu_play)
 
 
 func _connect_settings_menu(settings_screen: SettingsMenu) -> void:
@@ -258,9 +303,13 @@ func _connect_settings_menu(settings_screen: SettingsMenu) -> void:
 
 
 func _connect_match_history(screen: MatchHistoryScreen) -> void:
-	screen.set_progress_store(progress_store)
 	if not screen.back_pressed.is_connected(_on_match_history_back):
 		screen.back_pressed.connect(_on_match_history_back)
+	if not screen.play_pressed.is_connected(_on_main_menu_play):
+		screen.play_pressed.connect(_on_main_menu_play)
+	# Set the store LAST so its populate (which flips the loading state off and
+	# renders the correct empty/list state) runs after signals are connected.
+	screen.set_progress_store(progress_store)
 
 
 func _on_return_to_menu() -> void:

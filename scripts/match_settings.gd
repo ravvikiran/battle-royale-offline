@@ -105,6 +105,9 @@ func _setup_ui() -> void:
 	confirm_button.pressed.connect(_on_confirm_pressed)
 	back_button.pressed.connect(_on_back_pressed)
 
+	# Focus the first setting so keyboard/controller users can start adjusting.
+	difficulty_option.grab_focus.call_deferred()
+
 
 ## Set up a timer to ensure duration updates happen within 1 second of changes.
 func _setup_update_timer() -> void:

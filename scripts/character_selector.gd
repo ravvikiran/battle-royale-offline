@@ -68,6 +68,7 @@ const DEFAULT_VARIANT: String = "MALE"
 @onready var preview_camera: Camera3D = %PreviewCamera
 @onready var preview_model_root: Node3D = %PreviewModelRoot
 @onready var loading_label: Label = %LoadingLabel
+@onready var skeleton_panel: PanelContainer = %SkeletonPanel
 @onready var error_container: VBoxContainer = %ErrorContainer
 @onready var error_label: Label = %ErrorLabel
 @onready var retry_button: Button = %RetryButton
@@ -130,6 +131,10 @@ func _setup_ui() -> void:
 	# Hide error container initially
 	error_container.visible = false
 	loading_label.visible = false
+	skeleton_panel.visible = false
+
+	# Focus the primary action for keyboard/controller users.
+	confirm_button.grab_focus.call_deferred()
 
 
 ## Load the previously persisted character selection from ProgressStore.
@@ -179,7 +184,9 @@ func get_selected_variant() -> String:
 
 
 ## Update all display elements to reflect the current selection.
-func _update_display() -> void:
+## `animate` triggers a highlight flash on the name/description to confirm a
+## user-driven change (prev/next/variant); the initial load passes false.
+func _update_display(animate: bool = false) -> void:
 	var character := _get_selected_character()
 
 	# Update name and description
@@ -197,12 +204,21 @@ func _update_display() -> void:
 	prev_button.disabled = false
 	next_button.disabled = false
 
+	# Confirm the swap visually with an accent flash (no-op under reduced motion).
+	if animate:
+		Motion.highlight(character_name_label)
+		Motion.highlight(character_description_label)
+
 
 ## Begin loading the character model for preview.
 func _begin_model_load() -> void:
 	_loading = true
 	_model_loaded = false
-	loading_label.visible = true
+	# Show a skeleton sized to the final preview area (no layout shift) instead
+	# of a bare centered label. The old label is kept hidden for compatibility.
+	loading_label.visible = false
+	skeleton_panel.visible = true
+	_pulse_skeleton()
 	error_container.visible = false
 
 	# Start the load timeout timer
@@ -210,6 +226,21 @@ func _begin_model_load() -> void:
 
 	# Simulate model loading (in a real implementation, this would load a 3D model)
 	_load_character_model()
+
+
+## Subtle opacity pulse on the skeleton so it reads as "working" not "stuck".
+## No-op under reduced motion (Motion helper handles that).
+func _pulse_skeleton() -> void:
+	if not skeleton_panel.visible:
+		return
+	if Motion.is_reduced_motion():
+		skeleton_panel.modulate.a = 1.0
+		return
+	var tween := skeleton_panel.create_tween().set_loops()
+	tween.tween_property(skeleton_panel, "modulate:a", 0.5, UITheme.DUR_SLOW) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(skeleton_panel, "modulate:a", 1.0, UITheme.DUR_SLOW) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
 ## Load the character model for the 3D preview.
@@ -252,6 +283,7 @@ func _on_model_loaded_success() -> void:
 	_loading = false
 	_model_loaded = true
 	loading_label.visible = false
+	skeleton_panel.visible = false
 	error_container.visible = false
 
 
@@ -260,6 +292,7 @@ func _on_load_timeout() -> void:
 	_loading = false
 	_model_loaded = false
 	loading_label.visible = false
+	skeleton_panel.visible = false
 
 	# Show error with retry/alternate options
 	error_container.visible = true
@@ -306,29 +339,32 @@ func _apply_rotation() -> void:
 
 ## Navigate to the previous character.
 func _on_prev_pressed() -> void:
+	Motion.press_pop(prev_button)
 	_selected_index -= 1
 	if _selected_index < 0:
 		_selected_index = _characters_data.size() - 1
-	_update_display()
+	_update_display(true)
 	_begin_model_load()
 
 
 ## Navigate to the next character.
 func _on_next_pressed() -> void:
+	Motion.press_pop(next_button)
 	_selected_index += 1
 	if _selected_index >= _characters_data.size():
 		_selected_index = 0
-	_update_display()
+	_update_display(true)
 	_begin_model_load()
 
 
 ## Toggle between male and female variants.
 func _on_variant_toggle_pressed() -> void:
+	Motion.press_pop(variant_toggle)
 	if _selected_variant == "MALE":
 		_selected_variant = "FEMALE"
 	else:
 		_selected_variant = "MALE"
-	_update_display()
+	_update_display(true)
 	_begin_model_load()
 
 

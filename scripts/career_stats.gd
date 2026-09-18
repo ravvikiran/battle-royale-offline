@@ -8,12 +8,19 @@ extends Control
 ## Emitted when the player presses the back button.
 signal back_pressed
 
+## Emitted when the player presses "Play Now" from the empty state.
+signal play_pressed
+
 
 ## Reference to the ProgressStore for loading career statistics.
 var _progress_store: ProgressStore = null
 
 ## Cached career stats data.
 var _stats: Dictionary = {}
+
+## Whether the count-up/stagger reveal has already played this screen visit,
+## so repeated _refresh_stats() calls (ready + injection) don't re-animate.
+var _has_animated: bool = false
 
 
 ## UI node references.
@@ -25,6 +32,12 @@ var _stats: Dictionary = {}
 @onready var avg_kills_label: Label = %AvgKillsLabel
 @onready var win_rate_label: Label = %WinRateLabel
 @onready var no_data_label: Label = %NoDataLabel
+
+## Grouping containers (toggled together instead of per-label).
+@onready var hero_panel: PanelContainer = %HeroPanel
+@onready var stat_grid: GridContainer = %StatGrid
+@onready var no_data_container: VBoxContainer = %NoDataContainer
+@onready var play_now_button: Button = %PlayNowButton
 
 
 func _ready() -> void:
@@ -41,6 +54,9 @@ func set_progress_store(store: ProgressStore) -> void:
 ## Set up UI elements and connect signals.
 func _setup_ui() -> void:
 	back_button.pressed.connect(_on_back_pressed)
+	play_now_button.pressed.connect(_on_play_now_pressed)
+	# Default focus on Back; the empty state re-focuses its Play CTA below.
+	back_button.grab_focus.call_deferred()
 
 
 ## Refresh the career stats display from the ProgressStore.
@@ -64,36 +80,53 @@ func _refresh_stats() -> void:
 	var avg_kills: float = _stats.get("avg_kills_per_match", 0.0)
 	var win_rate: float = _stats.get("win_rate", 0.0)
 
-	total_matches_label.text = "Total Matches: %d" % total_matches
-	wins_label.text = "Wins: %d" % wins
-	total_kills_label.text = "Total Kills: %d" % total_kills
-	avg_kills_label.text = "Avg Kills/Match: %.1f" % avg_kills
-	win_rate_label.text = "Win Rate: %.1f%%" % win_rate
+	if _has_animated:
+		# Subsequent refreshes: set final values directly, no re-animation.
+		total_matches_label.text = "%d" % total_matches
+		wins_label.text = "%d" % wins
+		total_kills_label.text = "%d" % total_kills
+		avg_kills_label.text = "%.1f" % avg_kills
+		win_rate_label.text = "%.1f%%" % win_rate
+		return
+
+	_has_animated = true
+
+	# First reveal: numbers count up so they "land", and the cards cascade in.
+	# The hero win-rate is the headline metric, so it counts over the full duration.
+	Motion.count_to_float(win_rate_label, 0.0, win_rate, 1, "%")
+	Motion.count_to(total_matches_label, 0, total_matches)
+	Motion.count_to(wins_label, 0, wins)
+	Motion.count_to(total_kills_label, 0, total_kills)
+	Motion.count_to_float(avg_kills_label, 0.0, avg_kills, 1)
+
+	# Cascade the hero panel then the four stat cards into view.
+	Motion.stagger_in([hero_panel] + stat_grid.get_children())
 
 
 ## Show the no-data state when no matches have been played.
 func _show_no_data() -> void:
-	no_data_label.visible = true
-	total_matches_label.visible = false
-	wins_label.visible = false
-	total_kills_label.visible = false
-	avg_kills_label.visible = false
-	win_rate_label.visible = false
+	no_data_container.visible = true
+	hero_panel.visible = false
+	stat_grid.visible = false
+	# When empty, the Play CTA is the primary action — focus it.
+	play_now_button.grab_focus.call_deferred()
 
 
-## Show the stats labels and hide the no-data message.
+## Show the stats groups and hide the no-data message.
 func _show_stats() -> void:
-	no_data_label.visible = false
-	total_matches_label.visible = true
-	wins_label.visible = true
-	total_kills_label.visible = true
-	avg_kills_label.visible = true
-	win_rate_label.visible = true
+	no_data_container.visible = false
+	hero_panel.visible = true
+	stat_grid.visible = true
 
 
 ## Called when the back button is pressed.
 func _on_back_pressed() -> void:
 	back_pressed.emit()
+
+
+## Called when the empty-state "Play Now" button is pressed.
+func _on_play_now_pressed() -> void:
+	play_pressed.emit()
 
 
 ## Get the cached career stats.

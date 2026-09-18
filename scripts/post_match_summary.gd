@@ -76,45 +76,45 @@ func setup(data: Dictionary) -> void:
 func _build_ui() -> void:
 	var root := VBoxContainer.new()
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	root.add_theme_constant_override("separation", 12)
+	root.add_theme_constant_override("separation", UITheme.SPACE_S)
 	add_child(root)
 
 	# Title
 	var title := Label.new()
 	title.text = "MATCH SUMMARY"
-	title.add_theme_font_size_override("font_size", 28)
+	title.add_theme_font_size_override("font_size", UITheme.FONT_HEADING)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.modulate = Color(1.0, 0.84, 0.0)
+	title.modulate = UITheme.GOLD
 	root.add_child(title)
 
 	# XP Breakdown
 	var xp_header := Label.new()
 	xp_header.text = "XP EARNED"
-	xp_header.add_theme_font_size_override("font_size", 18)
+	xp_header.add_theme_font_size_override("font_size", UITheme.FONT_SUBHEADING)
 	xp_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	root.add_child(xp_header)
 
 	_xp_breakdown_container = VBoxContainer.new()
-	_xp_breakdown_container.add_theme_constant_override("separation", 4)
+	_xp_breakdown_container.add_theme_constant_override("separation", UITheme.SPACE_XXS)
 	root.add_child(_xp_breakdown_container)
 
 	# Total XP
 	_total_xp_label = Label.new()
 	_total_xp_label.text = "Total: 0 XP"
-	_total_xp_label.add_theme_font_size_override("font_size", 24)
+	_total_xp_label.add_theme_font_size_override("font_size", UITheme.FONT_HEADING)
 	_total_xp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_total_xp_label.modulate = Color(0.6, 0.4, 1.0)
+	_total_xp_label.modulate = UITheme.ACCENT_XP
 	root.add_child(_total_xp_label)
 
 	# Level progress
 	var level_row := HBoxContainer.new()
-	level_row.add_theme_constant_override("separation", 12)
+	level_row.add_theme_constant_override("separation", UITheme.SPACE_S)
 	level_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	root.add_child(level_row)
 
 	_level_label = Label.new()
 	_level_label.text = "Level 1"
-	_level_label.add_theme_font_size_override("font_size", 18)
+	_level_label.add_theme_font_size_override("font_size", UITheme.FONT_SUBHEADING)
 	level_row.add_child(_level_label)
 
 	_level_progress_bar = ProgressBar.new()
@@ -122,29 +122,29 @@ func _build_ui() -> void:
 	_level_progress_bar.max_value = 1.0
 	_level_progress_bar.value = 0.0
 	_level_progress_bar.show_percentage = false
-	_level_progress_bar.custom_minimum_size = Vector2(200, 20)
+	_level_progress_bar.custom_minimum_size = Vector2(200, UITheme.SPACE_L)
 	level_row.add_child(_level_progress_bar)
 
 	# Achievements unlocked
 	_achievement_list = VBoxContainer.new()
-	_achievement_list.add_theme_constant_override("separation", 4)
+	_achievement_list.add_theme_constant_override("separation", UITheme.SPACE_XXS)
 	root.add_child(_achievement_list)
 
 	# Challenges completed
 	_challenge_list = VBoxContainer.new()
-	_challenge_list.add_theme_constant_override("separation", 4)
+	_challenge_list.add_theme_constant_override("separation", UITheme.SPACE_XXS)
 	root.add_child(_challenge_list)
 
 	# Battle Pass progress
 	var bp_row := HBoxContainer.new()
 	bp_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	bp_row.add_theme_constant_override("separation", 12)
+	bp_row.add_theme_constant_override("separation", UITheme.SPACE_S)
 	root.add_child(bp_row)
 
 	_bp_label = Label.new()
 	_bp_label.text = "Battle Pass"
-	_bp_label.add_theme_font_size_override("font_size", 16)
-	_bp_label.modulate = Color(0.0, 1.0, 0.8)
+	_bp_label.add_theme_font_size_override("font_size", UITheme.FONT_BODY)
+	_bp_label.modulate = UITheme.ACCENT_TEAL
 	bp_row.add_child(_bp_label)
 
 	_bp_progress = ProgressBar.new()
@@ -152,13 +152,13 @@ func _build_ui() -> void:
 	_bp_progress.max_value = 50.0
 	_bp_progress.value = 0.0
 	_bp_progress.show_percentage = false
-	_bp_progress.custom_minimum_size = Vector2(200, 16)
+	_bp_progress.custom_minimum_size = Vector2(200, UITheme.SPACE_M)
 	bp_row.add_child(_bp_progress)
 
 	# Skip button
 	_skip_button = Button.new()
 	_skip_button.text = "Continue >"
-	_skip_button.custom_minimum_size = Vector2(150, 48)
+	_skip_button.custom_minimum_size = Vector2(150, UITheme.TOUCH_MIN)
 	_skip_button.pressed.connect(_skip_animation)
 	_skip_button.visible = false
 	root.add_child(_skip_button)
@@ -261,13 +261,13 @@ func _play_anim_step(anim: Dictionary) -> void:
 			var name_label := Label.new()
 			name_label.text = anim.get("name", "")
 			name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			name_label.add_theme_font_size_override("font_size", 16)
+			name_label.add_theme_font_size_override("font_size", UITheme.FONT_BODY)
 			row.add_child(name_label)
 			
 			var xp_label := Label.new()
 			xp_label.text = "+%d XP" % anim.get("amount", 0)
-			xp_label.add_theme_font_size_override("font_size", 16)
-			xp_label.modulate = Color(0.6, 0.4, 1.0)
+			xp_label.add_theme_font_size_override("font_size", UITheme.FONT_BODY)
+			xp_label.modulate = UITheme.ACCENT_XP
 			row.add_child(xp_label)
 			
 			_total_xp_displayed += anim.get("amount", 0)
@@ -275,22 +275,22 @@ func _play_anim_step(anim: Dictionary) -> void:
 
 		"level_up":
 			_level_label.text = "Level %d → %d!" % [anim.get("from", 1), anim.get("to", 1)]
-			_level_label.modulate = Color(0.3, 0.8, 1.0)
+			_level_label.modulate = UITheme.ACCENT
 			_level_progress_bar.value = 0.2  # Show some progress into new level
 
 		"achievement":
 			var label := Label.new()
 			label.text = "★ Achievement Unlocked: " + anim.get("id", "").replace("_", " ").capitalize()
-			label.add_theme_font_size_override("font_size", 15)
-			label.modulate = Color(1.0, 0.84, 0.0)
+			label.add_theme_font_size_override("font_size", UITheme.FONT_CAPTION)
+			label.modulate = UITheme.GOLD
 			_achievement_list.add_child(label)
 
 		"challenge":
 			var challenge: Dictionary = anim.get("data", {})
 			var label := Label.new()
 			label.text = "✓ Challenge: " + challenge.get("description", "Completed")
-			label.add_theme_font_size_override("font_size", 15)
-			label.modulate = Color(0.2, 1.0, 0.4)
+			label.add_theme_font_size_override("font_size", UITheme.FONT_CAPTION)
+			label.modulate = UITheme.SUCCESS
 			_challenge_list.add_child(label)
 
 		"bp_tier":

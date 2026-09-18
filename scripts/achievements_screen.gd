@@ -32,13 +32,13 @@ const CATEGORY_NAMES: Dictionary = {
 	Enums.AchievementCategory.SOCIAL: "Social",
 }
 
-## Rarity colors
+## Rarity colors — mapped to the shared UITheme palette for consistency.
 const RARITY_COLORS: Dictionary = {
-	Enums.AchievementRarity.BRONZE: Color(0.8, 0.5, 0.2),
-	Enums.AchievementRarity.SILVER: Color(0.75, 0.75, 0.75),
-	Enums.AchievementRarity.GOLD: Color(1.0, 0.84, 0.0),
-	Enums.AchievementRarity.PLATINUM: Color(0.4, 0.8, 1.0),
-	Enums.AchievementRarity.DIAMOND: Color(0.7, 0.3, 1.0),
+	Enums.AchievementRarity.BRONZE: Color(0.80, 0.52, 0.26, 1.0),
+	Enums.AchievementRarity.SILVER: Color(0.75, 0.76, 0.80, 1.0),
+	Enums.AchievementRarity.GOLD: UITheme.GOLD,
+	Enums.AchievementRarity.PLATINUM: UITheme.ACCENT,
+	Enums.AchievementRarity.DIAMOND: UITheme.ACCENT_XP,
 }
 
 
@@ -54,45 +54,61 @@ func set_achievements_manager(manager: AchievementsManager) -> void:
 
 ## Builds the UI
 func _build_ui() -> void:
+	# Full-bleed background at the deepest surface level for consistency
+	# with the .tscn screens (which use a Background ColorRect).
+	var bg := ColorRect.new()
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg.color = UITheme.SURFACE_BG
+	add_child(bg)
+
+	# Consistent screen padding (matches .tscn screens' 40px margin).
+	var margin := MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", UITheme.SPACE_XXL)
+	margin.add_theme_constant_override("margin_top", UITheme.SPACE_XXL)
+	margin.add_theme_constant_override("margin_right", UITheme.SPACE_XXL)
+	margin.add_theme_constant_override("margin_bottom", UITheme.SPACE_XXL)
+	add_child(margin)
+
 	var root := VBoxContainer.new()
-	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	root.add_theme_constant_override("separation", 16)
-	add_child(root)
+	root.add_theme_constant_override("separation", UITheme.SPACE_L)
+	margin.add_child(root)
 
 	# Header
 	var header := HBoxContainer.new()
-	header.add_theme_constant_override("separation", 20)
+	header.add_theme_constant_override("separation", UITheme.SPACE_L)
 	root.add_child(header)
 
 	_back_button = Button.new()
 	_back_button.text = "< Back"
-	_back_button.custom_minimum_size = Vector2(120, 48)
+	_back_button.custom_minimum_size = Vector2(120, UITheme.TOUCH_MIN)
 	_back_button.pressed.connect(func(): back_pressed.emit())
 	header.add_child(_back_button)
 
 	var title := Label.new()
 	title.text = "ACHIEVEMENTS"
-	title.add_theme_font_size_override("font_size", 32)
+	title.add_theme_font_size_override("font_size", UITheme.FONT_TITLE)
+	title.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
 
 	_completion_label = Label.new()
 	_completion_label.text = "0% Complete"
-	_completion_label.add_theme_font_size_override("font_size", 18)
-	_completion_label.modulate = Color(1.0, 0.84, 0.0)
+	_completion_label.add_theme_font_size_override("font_size", UITheme.FONT_SUBHEADING)
+	_completion_label.modulate = UITheme.GOLD
 	header.add_child(_completion_label)
 
 	# Category tabs
 	_category_tabs = HBoxContainer.new()
-	_category_tabs.add_theme_constant_override("separation", 8)
+	_category_tabs.add_theme_constant_override("separation", UITheme.SPACE_XS)
 	_category_tabs.alignment = BoxContainer.ALIGNMENT_CENTER
 	root.add_child(_category_tabs)
 
 	# "All" tab
 	var all_btn := Button.new()
 	all_btn.text = "All"
-	all_btn.custom_minimum_size = Vector2(80, 36)
+	all_btn.custom_minimum_size = Vector2(80, UITheme.TOUCH_MIN)
 	all_btn.pressed.connect(func(): _filter_category(-1))
 	_category_tabs.add_child(all_btn)
 
@@ -100,7 +116,7 @@ func _build_ui() -> void:
 	for cat in CATEGORY_NAMES.keys():
 		var btn := Button.new()
 		btn.text = CATEGORY_NAMES[cat]
-		btn.custom_minimum_size = Vector2(100, 36)
+		btn.custom_minimum_size = Vector2(100, UITheme.TOUCH_MIN)
 		btn.pressed.connect(_filter_category.bind(cat))
 		_category_tabs.add_child(btn)
 
@@ -112,8 +128,11 @@ func _build_ui() -> void:
 
 	_achievement_list = VBoxContainer.new()
 	_achievement_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_achievement_list.add_theme_constant_override("separation", 8)
+	_achievement_list.add_theme_constant_override("separation", UITheme.SPACE_XS)
 	_scroll_container.add_child(_achievement_list)
+
+	# Initial keyboard/controller focus.
+	_back_button.grab_focus.call_deferred()
 
 
 ## Filters achievements by category
@@ -184,8 +203,8 @@ func _create_achievement_entry(ach_id: String, ach: Dictionary) -> PanelContaine
 	# Rarity badge / icon placeholder
 	var badge := Label.new()
 	badge.text = "★" if is_unlocked else "☆"
-	badge.add_theme_font_size_override("font_size", 28)
-	badge.modulate = rarity_color if is_unlocked else Color(0.4, 0.4, 0.4)
+	badge.add_theme_font_size_override("font_size", UITheme.FONT_HEADING)
+	badge.modulate = rarity_color if is_unlocked else UITheme.TEXT_MUTED
 	badge.custom_minimum_size = Vector2(40, 0)
 	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hbox.add_child(badge)
@@ -197,14 +216,14 @@ func _create_achievement_entry(ach_id: String, ach: Dictionary) -> PanelContaine
 
 	var name_label := Label.new()
 	name_label.text = ach.get("name", "Unknown")
-	name_label.add_theme_font_size_override("font_size", 18)
-	name_label.modulate = rarity_color if is_unlocked else Color(0.6, 0.6, 0.6)
+	name_label.add_theme_font_size_override("font_size", UITheme.FONT_SUBHEADING)
+	name_label.modulate = rarity_color if is_unlocked else UITheme.TEXT_MUTED
 	info_vbox.add_child(name_label)
 
 	var desc_label := Label.new()
 	desc_label.text = ach.get("description", "")
-	desc_label.add_theme_font_size_override("font_size", 13)
-	desc_label.modulate = Color(0.7, 0.7, 0.7)
+	desc_label.add_theme_font_size_override("font_size", UITheme.FONT_CAPTION)
+	desc_label.modulate = UITheme.TEXT_SECONDARY
 	info_vbox.add_child(desc_label)
 
 	# Progress bar (for progressive achievements)
@@ -220,15 +239,15 @@ func _create_achievement_entry(ach_id: String, ach: Dictionary) -> PanelContaine
 
 		var progress_label := Label.new()
 		progress_label.text = "%d / %d" % [_achievements_manager.get_progress(ach_id), target]
-		progress_label.add_theme_font_size_override("font_size", 11)
-		progress_label.modulate = Color(0.6, 0.6, 0.6)
+		progress_label.add_theme_font_size_override("font_size", UITheme.FONT_MICRO)
+		progress_label.modulate = UITheme.TEXT_MUTED
 		info_vbox.add_child(progress_label)
 
 	# XP reward
 	var xp_label := Label.new()
 	xp_label.text = "+%d XP" % ach.get("xp_reward", 0)
-	xp_label.add_theme_font_size_override("font_size", 14)
-	xp_label.modulate = Color(0.6, 0.4, 1.0) if not is_unlocked else Color(0.3, 0.8, 0.3)
+	xp_label.add_theme_font_size_override("font_size", UITheme.FONT_CAPTION)
+	xp_label.modulate = UITheme.ACCENT_XP if not is_unlocked else UITheme.SUCCESS
 	xp_label.custom_minimum_size = Vector2(80, 0)
 	xp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	hbox.add_child(xp_label)

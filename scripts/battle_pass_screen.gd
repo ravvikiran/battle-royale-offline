@@ -35,43 +35,59 @@ func set_battle_pass(bp: BattlePass) -> void:
 
 ## Builds the UI
 func _build_ui() -> void:
+	# Full-bleed background for consistency with .tscn screens.
+	var bg := ColorRect.new()
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg.color = UITheme.SURFACE_BG
+	add_child(bg)
+
+	# Consistent screen padding.
+	var margin := MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", UITheme.SPACE_XXL)
+	margin.add_theme_constant_override("margin_top", UITheme.SPACE_XXL)
+	margin.add_theme_constant_override("margin_right", UITheme.SPACE_XXL)
+	margin.add_theme_constant_override("margin_bottom", UITheme.SPACE_XXL)
+	add_child(margin)
+
 	var root := VBoxContainer.new()
-	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	root.add_theme_constant_override("separation", 12)
-	add_child(root)
+	root.add_theme_constant_override("separation", UITheme.SPACE_M)
+	margin.add_child(root)
 
 	# Header
 	var header := HBoxContainer.new()
-	header.add_theme_constant_override("separation", 20)
+	header.add_theme_constant_override("separation", UITheme.SPACE_L)
 	root.add_child(header)
 
 	_back_button = Button.new()
 	_back_button.text = "< Back"
-	_back_button.custom_minimum_size = Vector2(120, 48)
+	_back_button.custom_minimum_size = Vector2(120, UITheme.TOUCH_MIN)
 	_back_button.pressed.connect(func(): back_pressed.emit())
 	header.add_child(_back_button)
 
 	_season_label = Label.new()
 	_season_label.text = "Season 1: First Drop"
-	_season_label.add_theme_font_size_override("font_size", 28)
+	_season_label.add_theme_font_size_override("font_size", UITheme.FONT_TITLE)
+	_season_label.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 	_season_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_season_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header.add_child(_season_label)
 
 	_claim_all_btn = Button.new()
 	_claim_all_btn.text = "Claim All"
-	_claim_all_btn.custom_minimum_size = Vector2(120, 48)
+	_claim_all_btn.custom_minimum_size = Vector2(120, UITheme.TOUCH_MIN)
 	_claim_all_btn.pressed.connect(_on_claim_all)
 	header.add_child(_claim_all_btn)
 
 	# Progress bar
 	var progress_row := HBoxContainer.new()
-	progress_row.add_theme_constant_override("separation", 12)
+	progress_row.add_theme_constant_override("separation", UITheme.SPACE_S)
 	root.add_child(progress_row)
 
 	_progress_label = Label.new()
 	_progress_label.text = "Tier 0 / 50"
-	_progress_label.add_theme_font_size_override("font_size", 18)
+	_progress_label.add_theme_font_size_override("font_size", UITheme.FONT_SUBHEADING)
+	_progress_label.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 	_progress_label.custom_minimum_size = Vector2(120, 0)
 	progress_row.add_child(_progress_label)
 
@@ -80,14 +96,14 @@ func _build_ui() -> void:
 	_xp_bar.max_value = 1.0
 	_xp_bar.value = 0.0
 	_xp_bar.show_percentage = false
-	_xp_bar.custom_minimum_size = Vector2(300, 24)
+	_xp_bar.custom_minimum_size = Vector2(300, UITheme.SPACE_L)
 	_xp_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	progress_row.add_child(_xp_bar)
 
 	_xp_label = Label.new()
 	_xp_label.text = "0 / 200 XP"
-	_xp_label.add_theme_font_size_override("font_size", 14)
-	_xp_label.modulate = Color(0.6, 0.8, 1.0)
+	_xp_label.add_theme_font_size_override("font_size", UITheme.FONT_CAPTION)
+	_xp_label.modulate = UITheme.ACCENT
 	progress_row.add_child(_xp_label)
 
 	# Tier scroll (horizontal)
@@ -97,8 +113,11 @@ func _build_ui() -> void:
 	root.add_child(_tier_scroll)
 
 	_tier_container = HBoxContainer.new()
-	_tier_container.add_theme_constant_override("separation", 4)
+	_tier_container.add_theme_constant_override("separation", UITheme.SPACE_XXS)
 	_tier_scroll.add_child(_tier_container)
+
+	# Initial keyboard/controller focus.
+	_back_button.grab_focus.call_deferred()
 
 
 ## Refreshes the entire display
@@ -141,11 +160,11 @@ func _create_tier_card(tier: int) -> PanelContainer:
 	# Tier number
 	var tier_label := Label.new()
 	tier_label.text = str(tier)
-	tier_label.add_theme_font_size_override("font_size", 16)
+	tier_label.add_theme_font_size_override("font_size", UITheme.FONT_BODY)
 	tier_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	tier_label.modulate = Color(1.0, 0.84, 0.0) if is_reached else Color(0.5, 0.5, 0.5)
+	tier_label.modulate = UITheme.GOLD if is_reached else UITheme.TEXT_MUTED
 	if is_current:
-		tier_label.modulate = Color(0.3, 0.8, 1.0)
+		tier_label.modulate = UITheme.ACCENT
 	vbox.add_child(tier_label)
 
 	# Free reward
@@ -153,11 +172,11 @@ func _create_tier_card(tier: int) -> PanelContainer:
 	var free_label := Label.new()
 	if not free_reward.is_empty():
 		free_label.text = free_reward.get("name", "---")
-		free_label.modulate = Color(0.2, 0.8, 0.2) if is_reached else Color(0.5, 0.5, 0.5)
+		free_label.modulate = UITheme.SUCCESS if is_reached else UITheme.TEXT_MUTED
 	else:
 		free_label.text = "---"
-		free_label.modulate = Color(0.3, 0.3, 0.3)
-	free_label.add_theme_font_size_override("font_size", 11)
+		free_label.modulate = UITheme.BORDER
+	free_label.add_theme_font_size_override("font_size", UITheme.FONT_MICRO)
 	free_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	free_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	vbox.add_child(free_label)
@@ -168,13 +187,13 @@ func _create_tier_card(tier: int) -> PanelContainer:
 	if not prem_reward.is_empty():
 		prem_label.text = prem_reward.get("name", "---")
 		if _battle_pass.is_premium:
-			prem_label.modulate = Color(0.6, 0.3, 1.0) if is_reached else Color(0.4, 0.4, 0.4)
+			prem_label.modulate = UITheme.ACCENT_XP if is_reached else UITheme.TEXT_MUTED
 		else:
-			prem_label.modulate = Color(0.3, 0.3, 0.3, 0.5)  # Locked
+			prem_label.modulate = Color(UITheme.BORDER.r, UITheme.BORDER.g, UITheme.BORDER.b, 0.5)  # Locked
 	else:
 		prem_label.text = "---"
-		prem_label.modulate = Color(0.3, 0.3, 0.3)
-	prem_label.add_theme_font_size_override("font_size", 11)
+		prem_label.modulate = UITheme.BORDER
+	prem_label.add_theme_font_size_override("font_size", UITheme.FONT_MICRO)
 	prem_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	prem_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	vbox.add_child(prem_label)

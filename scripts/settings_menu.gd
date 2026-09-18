@@ -107,6 +107,9 @@ func _setup_ui() -> void:
 	audio_button.pressed.connect(_on_audio_pressed)
 	account_button.pressed.connect(_on_account_pressed)
 
+	# Land focus on the first settings category for keyboard/controller users.
+	controls_button.grab_focus.call_deferred()
+
 	# Controls sub-section
 	sensitivity_slider.min_value = 1.0
 	sensitivity_slider.max_value = 10.0

@@ -18,7 +18,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.15, 0.05, 0.05, 0.92)
+color = Color(0.12, 0.05, 0.06, 0.94)
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -27,10 +27,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 60
-theme_override_constants/margin_top = 60
-theme_override_constants/margin_right = 60
-theme_override_constants/margin_bottom = 60
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
@@ -41,72 +41,154 @@ alignment = 1
 [node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.42, 0.44, 1)
+theme_override_font_sizes/font_size = 48
 text = "ELIMINATED"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Spacer1" type="Control" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 20)
-
 [node name="PlacementLabel" type="Label" parent="MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 32
 text = "#25 / 51"
 horizontal_alignment = 1
 
-[node name="Spacer2" type="Control" parent="MarginContainer/VBoxContainer"]
+[node name="PlacementCaption" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 10)
-
-[node name="StatsContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="KillsLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Kills: 0"
+theme_override_colors/font_color = Color(0.55, 0.58, 0.66, 1)
+theme_override_font_sizes/font_size = 14
+text = "FINAL PLACEMENT"
 horizontal_alignment = 1
 
-[node name="DamageLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
+[node name="Spacer1" type="Control" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 16)
+
+[node name="PerformanceGroup" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="KillsCard" type="PanelContainer" parent="MarginContainer/VBoxContainer/PerformanceGroup"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Content" type="VBoxContainer" parent="MarginContainer/VBoxContainer/PerformanceGroup/KillsCard"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="KillsLabel" type="Label" parent="MarginContainer/VBoxContainer/PerformanceGroup/KillsCard/Content"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Damage: 0"
+theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "0"
 horizontal_alignment = 1
 
-[node name="SurvivalTimeLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
-unique_name_in_owner = true
+[node name="KillsCaption" type="Label" parent="MarginContainer/VBoxContainer/PerformanceGroup/KillsCard/Content"]
 layout_mode = 2
-text = "Survived: 0:00"
+theme_override_colors/font_color = Color(0.55, 0.58, 0.66, 1)
+theme_override_font_sizes/font_size = 14
+text = "Eliminations"
 horizontal_alignment = 1
 
-[node name="CharacterLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
+[node name="DamageCard" type="PanelContainer" parent="MarginContainer/VBoxContainer/PerformanceGroup"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Content" type="VBoxContainer" parent="MarginContainer/VBoxContainer/PerformanceGroup/DamageCard"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="DamageLabel" type="Label" parent="MarginContainer/VBoxContainer/PerformanceGroup/DamageCard/Content"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "0"
+horizontal_alignment = 1
+
+[node name="DamageCaption" type="Label" parent="MarginContainer/VBoxContainer/PerformanceGroup/DamageCard/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.66, 1)
+theme_override_font_sizes/font_size = 14
+text = "Damage"
+horizontal_alignment = 1
+
+[node name="SurvivalCard" type="PanelContainer" parent="MarginContainer/VBoxContainer/PerformanceGroup"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Content" type="VBoxContainer" parent="MarginContainer/VBoxContainer/PerformanceGroup/SurvivalCard"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="SurvivalTimeLabel" type="Label" parent="MarginContainer/VBoxContainer/PerformanceGroup/SurvivalCard/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "0:00"
+horizontal_alignment = 1
+
+[node name="SurvivalCaption" type="Label" parent="MarginContainer/VBoxContainer/PerformanceGroup/SurvivalCard/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.66, 1)
+theme_override_font_sizes/font_size = 14
+text = "Survived"
+horizontal_alignment = 1
+
+[node name="ContextGroup" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="CharacterLabel" type="Label" parent="MarginContainer/VBoxContainer/ContextGroup"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.8, 0.86, 1)
+theme_override_font_sizes/font_size = 14
 text = "Blitz (Male)"
-horizontal_alignment = 1
 
-[node name="DifficultyLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
+[node name="ContextSep1" type="Label" parent="MarginContainer/VBoxContainer/ContextGroup"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.28, 0.3, 0.38, 1)
+theme_override_font_sizes/font_size = 14
+text = "•"
+
+[node name="DifficultyLabel" type="Label" parent="MarginContainer/VBoxContainer/ContextGroup"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.8, 0.86, 1)
+theme_override_font_sizes/font_size = 14
 text = "Difficulty: Medium"
-horizontal_alignment = 1
 
-[node name="BotCountLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
+[node name="ContextSep2" type="Label" parent="MarginContainer/VBoxContainer/ContextGroup"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.28, 0.3, 0.38, 1)
+theme_override_font_sizes/font_size = 14
+text = "•"
+
+[node name="BotCountLabel" type="Label" parent="MarginContainer/VBoxContainer/ContextGroup"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.8, 0.86, 1)
+theme_override_font_sizes/font_size = 14
 text = "Bots: 50"
-horizontal_alignment = 1
 
 [node name="Spacer3" type="Control" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 30)
+custom_minimum_size = Vector2(0, 32)
 
 [node name="ButtonContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 20
+theme_override_constants/separation = 24
 
 [node name="ReturnButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonContainer"]
 unique_name_in_owner = true

@@ -29,6 +29,14 @@ window/size/viewport_height=1080
 window/size/window_width_override=1280
 window/size/window_height_override=720
 
+[gui]
+
+theme/custom="res://resources/default_theme.tres"
+
+[accessibility]
+
+reduced_motion=false
+
 [rendering]
 
 renderer/rendering_method="mobile"

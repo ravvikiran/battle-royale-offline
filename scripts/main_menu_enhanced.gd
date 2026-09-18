@@ -180,7 +180,7 @@ func _build_enhanced_ui() -> void:
 
 	_daily_reward_btn = Button.new()
 	_daily_reward_btn.text = "Claim!"
-	_daily_reward_btn.custom_minimum_size = Vector2(80, 32)
+	_daily_reward_btn.custom_minimum_size = Vector2(88, UITheme.TOUCH_MIN)
 	_daily_reward_btn.pressed.connect(_on_claim_daily_reward)
 	streak_row.add_child(_daily_reward_btn)
 

@@ -18,7 +18,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.1, 0.1, 0.15, 1)
+color = Color(0.07, 0.08, 0.11, 1)
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -34,7 +34,7 @@ theme_override_constants/margin_bottom = 40
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 24
 
 [node name="HeaderContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -42,60 +42,170 @@ layout_mode = 2
 [node name="BackButton" type="Button" parent="MarginContainer/VBoxContainer/HeaderContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(80, 44)
+custom_minimum_size = Vector2(88, 44)
 text = "< Back"
 
 [node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer/HeaderContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 32
 text = "CAREER STATS"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer/HeaderContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(80, 0)
+custom_minimum_size = Vector2(88, 0)
 
 [node name="StatsContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 24
+
+[node name="HeroPanel" type="PanelContainer" parent="MarginContainer/VBoxContainer/StatsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HeroContent" type="VBoxContainer" parent="MarginContainer/VBoxContainer/StatsContainer/HeroPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="WinRateLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer/HeroPanel/HeroContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.84, 0, 1)
+theme_override_font_sizes/font_size = 48
+text = "0.0%"
+horizontal_alignment = 1
+
+[node name="WinRateCaption" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer/HeroPanel/HeroContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.66, 1)
+theme_override_font_sizes/font_size = 14
+text = "WIN RATE"
+horizontal_alignment = 1
+
+[node name="StatGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/StatsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
+columns = 2
+
+[node name="MatchesCard" type="PanelContainer" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Content" type="VBoxContainer" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid/MatchesCard"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TotalMatchesLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid/MatchesCard/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "0"
+
+[node name="Caption" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid/MatchesCard/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.66, 1)
+theme_override_font_sizes/font_size = 14
+text = "Matches Played"
+
+[node name="WinsCard" type="PanelContainer" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Content" type="VBoxContainer" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid/WinsCard"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="WinsLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid/WinsCard/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.24, 0.8, 0.44, 1)
+theme_override_font_sizes/font_size = 24
+text = "0"
+
+[node name="Caption" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid/WinsCard/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.66, 1)
+theme_override_font_sizes/font_size = 14
+text = "Victories"
+
+[node name="KillsCard" type="PanelContainer" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Content" type="VBoxContainer" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid/KillsCard"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TotalKillsLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid/KillsCard/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "0"
+
+[node name="Caption" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid/KillsCard/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.66, 1)
+theme_override_font_sizes/font_size = 14
+text = "Total Eliminations"
+
+[node name="AvgKillsCard" type="PanelContainer" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Content" type="VBoxContainer" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid/AvgKillsCard"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="AvgKillsLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid/AvgKillsCard/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "0.0"
+
+[node name="Caption" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer/StatGrid/AvgKillsCard/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.66, 1)
+theme_override_font_sizes/font_size = 14
+text = "Avg Kills / Match"
+
+[node name="NoDataContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/StatsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
 theme_override_constants/separation = 16
-
-[node name="TotalMatchesLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Total Matches: 0"
-horizontal_alignment = 1
-
-[node name="WinsLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Wins: 0"
-horizontal_alignment = 1
-
-[node name="TotalKillsLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Total Kills: 0"
-horizontal_alignment = 1
-
-[node name="AvgKillsLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Avg Kills/Match: 0.0"
-horizontal_alignment = 1
-
-[node name="WinRateLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Win Rate: 0.0%"
-horizontal_alignment = 1
-
-[node name="NoDataLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "No matches played yet. Start a match to see your stats!"
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 2
+alignment = 1
 visible = false
+
+[node name="NoDataLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer/NoDataContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.8, 0.86, 1)
+theme_override_font_sizes/font_size = 20
+text = "No matches played yet"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="NoDataHint" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer/NoDataContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.66, 1)
+theme_override_font_sizes/font_size = 14
+text = "Jump into your first match to start tracking wins, kills, and your win rate."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="PlayNowButton" type="Button" parent="MarginContainer/VBoxContainer/StatsContainer/NoDataContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 50)
+size_flags_horizontal = 4
+text = "Play Now"

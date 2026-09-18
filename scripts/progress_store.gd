@@ -18,6 +18,11 @@ var current_user_id: String = ""
 ## Unsaved match results retained in memory on save failure
 var unsaved_results: Array = []
 
+## True if data recovery occurred during initialize() (save file was unreadable
+## and reset). Latches so a listener that connects AFTER init can still surface
+## it once. Cleared by consume_recovery_flag().
+var recovery_occurred: bool = false
+
 ## In-memory data store
 var _data: Dictionary = {}
 
@@ -54,11 +59,13 @@ func initialize(user_id: String) -> Dictionary:
 		var integrity_ok := validate_data_integrity()
 		if not integrity_ok:
 			_create_fresh_data()
+			recovery_occurred = true
 			data_recovery_notification.emit("Previous progress data could not be recovered. Starting fresh.")
 	else:
 		# Data loaded — validate integrity of existing data
 		if not validate_data_integrity():
 			_create_fresh_data()
+			recovery_occurred = true
 			data_recovery_notification.emit("Previous progress data could not be recovered. Starting fresh.")
 
 	# Ensure player profile exists for this user
@@ -67,6 +74,14 @@ func initialize(user_id: String) -> Dictionary:
 
 	_initialized = true
 	return {"success": true}
+
+
+## Returns whether recovery occurred at init and clears the latch, so a listener
+## that connects after initialize() can surface the notice exactly once.
+func consume_recovery_flag() -> bool:
+	var occurred := recovery_occurred
+	recovery_occurred = false
+	return occurred
 
 
 ## Saves a match result to the progress store.
